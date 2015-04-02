@@ -1,0 +1,2 @@
+tasm UARTCONSOLE.asm
+PAUSE
