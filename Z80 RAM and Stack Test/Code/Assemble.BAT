@@ -1,0 +1,2 @@
+tasm STACKTEST.asm
+PAUSE
