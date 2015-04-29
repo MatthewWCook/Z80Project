@@ -1,0 +1,13 @@
+EESchema-DOCLIB  Version 2.0  Date: 3/24/2015 1:19:29 PM
+#
+$CMP MAX202
+F maxim/max200-max213.pdf
+$ENDCMP
+#
+$CMP MAX237
+D Driver de Ligne RS232
+K RS232
+F maxim/MAX220-MAX249.pdf
+$ENDCMP
+#
+#End Doc Library
