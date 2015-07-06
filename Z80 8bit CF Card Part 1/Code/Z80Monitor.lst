@@ -1,0 +1,804 @@
+0001   0000             ;***************************************************************************
+0002   0000             ;  PROGRAM:			Z80 Monitor        
+0003   0000             ;  PURPOSE:			ROM Monitor Program
+0004   0000             ;  ASSEMBLER:		TASM 3.2        
+0005   0000             ;  LICENCE:			The MIT Licence
+0006   0000             ;  AUTHOR :			MCook
+0007   0000             ;  CREATE DATE :	05 May 15
+0008   0000             ;***************************************************************************
+0009   0000             
+0010   0000             EOS:         .EQU    $FF            	;End of string
+0011   0000             
+0012   0000             .ORG $0000
+0013   0000             
+0014   0000             START:
+0015   0000 F3          			DI							;Disable interrupts
+0016   0001 C3 00 01    			JP 		MAIN  				;Jump to the MAIN routine
+0017   0004             			
+0018   0038             .ORG $0038
+0019   0038             
+0020   0038             INT_CATCH:
+0021   0038 C3 38 00    			JP 		INT_CATCH			;INF loop to catch interrupts (not enabled)
+0022   003B             			
+0023   0066             .ORG $0066
+0024   0066             
+0025   0066             NMI_CATCH:
+0026   0066 C3 66 00    			JP		NMI_CATCH			;INF loop to catch interrupts (not enabled)
+0027   0069             			
+0028   0100             .ORG $0100
+0029   0100             ;***************************************************************************
+0030   0100             ;MAIN
+0031   0100             ;Function: Entrance to user program
+0032   0100             ;***************************************************************************
+0033   0100             MAIN:
+0034   0100 31 FF 87    			LD		SP,RAM_TOP			;Load the stack pointer for stack operations.
+0035   0103 CD B9 01    			CALL	UART_INIT			;Initialize UART
+0036   0106 CD FE 01    			CALL	CF_INIT
+0037   0109 CD 6F 01    			CALL	PRINT_MON_HDR		;Print the monitor header info
+0038   010C CD 87 01    			CALL    MON_PROMPT_LOOP		;Monitor user prompt loop
+0039   010F 76          			HALT
+0040   0110             
+0041   0110             ;***************************************************************************
+0042   0110             ;CLEAR_SCREEN
+0043   0110             ;Function: Clears terminal screen
+0044   0110             ;***************************************************************************
+0045   0110 0C FF       MON_CLS: .BYTE "\f",EOS  				;Escape sequence for CLS. (aka form feed) 
+0046   0112             		
+0047   0112             CLEAR_SCREEN:		
+0048   0112 21 10 01    			LD 		HL,MON_CLS			
+0049   0115 CD 31 04    			CALL    PRINT_STRING
+0050   0118 C9          			RET			
+0051   0119             			
+0052   0119             ;***************************************************************************
+0053   0119             ;RESET_COMMAND
+0054   0119             ;Function: Software Reset to $0000
+0055   0119             ;***************************************************************************
+0056   0119             RESET_COMMAND:
+0057   0119 C3 00 00    			JP		START				;Jumps to $0000 (reset)	
+0058   011C             			
+0059   011C             ;***************************************************************************
+0060   011C             ;PRINT_MON_HDR
+0061   011C             ;Function: Print out program header info
+0062   011C             ;***************************************************************************
+0063   011C 0D 0A 5A 4D MON_MSG: .BYTE "\r\nZMC80 Computer\t\t2015 MCook\r\n\r\n",EOS
+0063   0120 43 38 30 20 
+0063   0124 43 6F 6D 70 
+0063   0128 75 74 65 72 
+0063   012C 09 09 32 30 
+0063   0130 31 35 20 4D 
+0063   0134 43 6F 6F 6B 
+0063   0138 0D 0A 0D 0A 
+0063   013C FF 
+0064   013D 52 4F 4D 20 MON_VER: .BYTE "ROM Monitor v0.1\r\n\r\n",EOS
+0064   0141 4D 6F 6E 69 
+0064   0145 74 6F 72 20 
+0064   0149 76 30 2E 31 
+0064   014D 0D 0A 0D 0A 
+0064   0151 FF 
+0065   0152 09 20 49 6E MON_HLP: .BYTE "\t Input ? for command list\r\n",EOS
+0065   0156 70 75 74 20 
+0065   015A 3F 20 66 6F 
+0065   015E 72 20 63 6F 
+0065   0162 6D 6D 61 6E 
+0065   0166 64 20 6C 69 
+0065   016A 73 74 0D 0A 
+0065   016E FF 
+0066   016F             
+0067   016F             PRINT_MON_HDR:
+0068   016F CD 12 01    			CALL	CLEAR_SCREEN		;Clear the terminal screen
+0069   0172 21 1C 01    			LD 		HL,MON_MSG			;Print some messages
+0070   0175 CD 31 04    			CALL    PRINT_STRING	
+0071   0178 21 3D 01    			LD 		HL,MON_VER
+0072   017B CD 31 04    			CALL    PRINT_STRING
+0073   017E 21 52 01    			LD 		HL,MON_HLP
+0074   0181 CD 31 04    			CALL    PRINT_STRING
+0075   0184 C9          			RET
+0076   0185             			
+0077   0185             ;***************************************************************************
+0078   0185             ;MON_PROMPT
+0079   0185             ;Function: Prompt user for input
+0080   0185             ;***************************************************************************			
+0081   0185 3E FF       MON_PROMPT: .BYTE ">",EOS
+0082   0187             
+0083   0187             MON_PROMPT_LOOP:
+0084   0187 21 85 01    			LD 		HL,MON_PROMPT		;Print monitor prompt
+0085   018A CD 31 04    			CALL    PRINT_STRING		
+0086   018D CD 35 04    			CALL	GET_CHAR			;Get a character from user into Acc
+0087   0190 CD 3C 04    			CALL 	PRINT_CHAR
+0088   0193 CD 4C 04    			CALL    PRINT_NEW_LINE		;Print a new line
+0089   0196 CD 9F 01    			CALL	MON_COMMAND			;Respond to user input
+0090   0199 CD 4C 04    			CALL 	PRINT_NEW_LINE		;Print a new line	
+0091   019C C3 87 01    			JP		MON_PROMPT_LOOP
+0092   019F             
+0093   019F             ;***************************************************************************
+0094   019F             ;MON_COMMAND
+0095   019F             ;Function: User input in accumulator to respond to 
+0096   019F             ;***************************************************************************
+0097   019F             MON_COMMAND:
+0098   019F FE 3F       			CP		'?'					
+0099   01A1 CC 5F 03    			CALL  	Z,HELP_COMMAND
+0100   01A4 FE 44       			CP		'D'
+0101   01A6 CC EF 03    			CALL  	Z,MEMORY_DUMP_COMMAND
+0102   01A9 FE 43       			CP		'C'
+0103   01AB CC 12 01    			CALL  	Z,CLEAR_SCREEN
+0104   01AE FE 52       			CP		'R'
+0105   01B0 CC 19 01    			CALL	Z,RESET_COMMAND
+0106   01B3 FE 4C       			CP		'L'
+0107   01B5 CC 9C 02    			CALL	Z,CF_TEST
+0108   01B8 C9          			RET
+0109   01B9             	
+0110   01B9             #INCLUDE	"MEMMap.asm"	
+0001+  01B9             ;***************************************************************************
+0002+  01B9             ;  PROGRAM:			MEMMap       
+0003+  01B9             ;  PURPOSE:			Memory Map
+0004+  01B9             ;  ASSEMBLER:		TASM 3.2        
+0005+  01B9             ;  LICENCE:			The MIT Licence
+0006+  01B9             ;  AUTHOR :			MCook
+0007+  01B9             ;  CREATE DATE :	26 June 15
+0008+  01B9             ;***************************************************************************
+0009+  01B9             
+0010+  01B9             ROM_BOTTOM:  .EQU    $0000				;Bottom address of ROM
+0011+  01B9             ROM_TOP:     .EQU    $07FF				;Top address of ROM
+0012+  01B9             RAM_BOTTOM:  .EQU    $8000   			;Bottom address of RAM
+0013+  01B9             RAM_TOP:     .EQU    $87FF				;Top address of RAM	
+0014+  01B9             
+0015+  01B9             CFSECT_BUFF	.EQU     $8000     	        ;CF Sector Buffer
+0016+  01B9             		
+0111   01B9             #INCLUDE	"IOMap.asm"			
+0001+  01B9             ;***************************************************************************
+0002+  01B9             ;  PROGRAM:			IOMap       
+0003+  01B9             ;  PURPOSE:			Base addresses for I/O Map
+0004+  01B9             ;  ASSEMBLER:		TASM 3.2        
+0005+  01B9             ;  LICENCE:			The MIT Licence
+0006+  01B9             ;  AUTHOR :			MCook
+0007+  01B9             ;  CREATE DATE :	19 June 15
+0008+  01B9             ;***************************************************************************
+0009+  01B9             
+0010+  01B9             ;I/O Map base addresses
+0011+  01B9             UARTBASE:	.EQU	$00			;UART base address
+0012+  01B9             CFBASE:		.EQU    $20			;CF Card base address
+0112   01B9             #INCLUDE	"UARTDriver.asm"
+0001+  01B9             ;***************************************************************************
+0002+  01B9             ;  PROGRAM:			UARTDriver        
+0003+  01B9             ;  PURPOSE:			Subroutines for a 16550 UART
+0004+  01B9             ;  ASSEMBLER:		TASM 3.2        
+0005+  01B9             ;  LICENCE:			The MIT Licence
+0006+  01B9             ;  AUTHOR :			MCook
+0007+  01B9             ;  CREATE DATE :	06 May 15
+0008+  01B9             ;***************************************************************************
+0009+  01B9             
+0010+  01B9             ; IDE Status Register:
+0011+  01B9             ;  bit 7: Busy	1=busy, 0=not busy
+0012+  01B9             ;  bit 6: Ready 1=ready for command, 0=not ready yet
+0013+  01B9             ;  bit 5: DF	1=fault occured insIDE drive
+0014+  01B9             ;  bit 4: DSC	1=seek complete
+0015+  01B9             ;  bit 3: DRQ	1=data request ready, 0=not ready to xfer yet
+0016+  01B9             ;  bit 2: CORR	1=correctable error occured
+0017+  01B9             ;  bit 1: IDX	vendor specific
+0018+  01B9             ;  bit 0: ERR	1=error occured
+0019+  01B9             
+0020+  01B9             ;The eight addresses that the 16550 resides in I/O space.
+0021+  01B9             ;Change to suit hardware.
+0022+  01B9             UART0:       .EQU   UARTBASE + $00		;Data in/out
+0023+  01B9             UART1:       .EQU   UARTBASE + $01      ;Check RX
+0024+  01B9             UART2:       .EQU   UARTBASE + $02      ;Interrupts
+0025+  01B9             UART3:       .EQU   UARTBASE + $03      ;Line control
+0026+  01B9             UART4:       .EQU   UARTBASE + $04      ;Modem control
+0027+  01B9             UART5:       .EQU   UARTBASE + $05      ;Line status
+0028+  01B9             UART6:       .EQU   UARTBASE + $06      ;Modem status
+0029+  01B9             UART7:       .EQU   UARTBASE + $07      ;Scratch register		
+0030+  01B9             		
+0031+  01B9             ;***************************************************************************
+0032+  01B9             ;UART_INIT
+0033+  01B9             ;Function: Initialize the UART to BAUD Rate 9600 (1.8432 MHz clock input)
+0034+  01B9             ;***************************************************************************
+0035+  01B9             UART_INIT:
+0036+  01B9 3E 80                   LD     A,$80				;Mask to Set DLAB Flag
+0037+  01BB D3 03       			OUT    (UART3),A
+0038+  01BD 3E 0C       			LD     A,12					;Divisor = 12 @ 9600bps w/ 1.8432 Mhz
+0039+  01BF D3 00       			OUT    (UART0),A			;Set BAUD rate to 9600
+0040+  01C1 3E 00       			LD     A,00
+0041+  01C3 D3 01       			OUT    (UART1),A			;Set BAUD rate to 9600
+0042+  01C5 3E 03       			LD     A,$03
+0043+  01C7 D3 03       			OUT    (UART3),A			;Set 8-bit data, 1 stop bit, reset DLAB Flag
+0044+  01C9 3E 01       			LD	   A,$01
+0045+  01CB D3 01       			OUT    (UART1),A			;Enable receive data available interrupt only
+0046+  01CD C9          			RET		
+0047+  01CE             		
+0048+  01CE             ;***************************************************************************
+0049+  01CE             ;UART_PRNT_STR:
+0050+  01CE             ;Function: Print out string starting at MEM location (HL) to 16550 UART
+0051+  01CE             ;***************************************************************************
+0052+  01CE             UART_PRNT_STR:
+0053+  01CE F5          			PUSH	AF
+0054+  01CF             UART_PRNT_STR_LP:
+0055+  01CF 7E          			LD		A,(HL)
+0056+  01D0 FE FF                   CP		EOS					;Test for end byte
+0057+  01D2 CA DC 01                JP		Z,UART_END_PRNT_STR	;Jump if end byte is found
+0058+  01D5 CD E8 01    			CALL	UART_TX
+0059+  01D8 23                      INC		HL					;Increment pointer to next char
+0060+  01D9 C3 CF 01                JP		UART_PRNT_STR_LP	;Transmit loop
+0061+  01DC             UART_END_PRNT_STR:
+0062+  01DC F1          			POP		AF
+0063+  01DD C9          			RET	 
+0064+  01DE             			 	
+0065+  01DE             ;***************************************************************************
+0066+  01DE             ;UART_TX_READY
+0067+  01DE             ;Function: Check if UART is ready to transmit
+0068+  01DE             ;***************************************************************************
+0069+  01DE             UART_TX_RDY:
+0070+  01DE F5          			PUSH 	AF
+0071+  01DF             UART_TX_RDY_LP:			
+0072+  01DF DB 05       			IN		A,(UART5)			;Fetch the control register
+0073+  01E1 CB 6F       			BIT 	5,A					;Bit will be set if UART is ready to send
+0074+  01E3 CA DF 01    			JP		Z,UART_TX_RDY_LP		
+0075+  01E6 F1          			POP     AF
+0076+  01E7 C9          			RET
+0077+  01E8             	
+0078+  01E8             ;***************************************************************************
+0079+  01E8             ;UART_TX
+0080+  01E8             ;Function: Transmit character in A to UART
+0081+  01E8             ;***************************************************************************
+0082+  01E8             UART_TX:
+0083+  01E8 CD DE 01    			CALL  UART_TX_RDY			;Make sure UART is ready to receive
+0084+  01EB D3 00       			OUT   (UART0),A				;Transmit character in A to UART
+0085+  01ED C9          			RET
+0086+  01EE             				
+0087+  01EE             ;***************************************************************************
+0088+  01EE             ;UART_RX_READY
+0089+  01EE             ;Function: Check if UART is ready to receive
+0090+  01EE             ;***************************************************************************
+0091+  01EE             UART_RX_RDY:
+0092+  01EE F5          			PUSH 	AF					
+0093+  01EF             UART_RX_RDY_LP:			
+0094+  01EF DB 05       			IN		A,(UART5)			;Fetch the control register
+0095+  01F1 CB 47       			BIT 	0,A					;Bit will be set if UART is ready to receive
+0096+  01F3 CA EF 01    			JP		Z,UART_RX_RDY_LP		
+0097+  01F6 F1          			POP     AF
+0098+  01F7 C9          			RET
+0099+  01F8             	
+0100+  01F8             ;***************************************************************************
+0101+  01F8             ;UART_RX
+0102+  01F8             ;Function: Receive character in UART to A
+0103+  01F8             ;***************************************************************************
+0104+  01F8             UART_RX:
+0105+  01F8 CD EE 01    			CALL  UART_RX_RDY			;Make sure UART is ready to receive
+0106+  01FB DB 00       			IN    A,(UART0)				;Receive character in UART to A
+0107+  01FD C9          			RET			
+0113   01FE             #INCLUDE	"CFDriver.asm"
+0001+  01FE             ;***************************************************************************
+0002+  01FE             ;  PROGRAM:			CFDriver        
+0003+  01FE             ;  PURPOSE:			Subroutines for a CF Card
+0004+  01FE             ;  ASSEMBLER:		TASM 3.2        
+0005+  01FE             ;  LICENCE:			The MIT Licence
+0006+  01FE             ;  AUTHOR :			MCook
+0007+  01FE             ;  CREATE DATE :	19 June 15
+0008+  01FE             ;***************************************************************************
+0009+  01FE             
+0010+  01FE             ;The addresses that the CF Card resides in I/O space.
+0011+  01FE             ;Change to suit hardware.
+0012+  01FE             CFDATA:		.EQU	CFBASE + $00		; Data (R/W)
+0013+  01FE             CFERR:		.EQU	CFBASE + $01		; Error register (R)
+0014+  01FE             CFFEAT:		.EQU	CFBASE + $01		; Features (W)
+0015+  01FE             CFSECCO:	.EQU	CFBASE + $02		; Sector count (R/W)
+0016+  01FE             CFLBA0:		.EQU	CFBASE + $03		; LBA bits 0-7 (R/W, LBA mode)
+0017+  01FE             CFLBA1:		.EQU	CFBASE + $04		; LBA bits 8-15 (R/W, LBA mode)
+0018+  01FE             CFLBA2:		.EQU	CFBASE + $05		; LBA bits 16-23 (R/W, LBA mode)
+0019+  01FE             CFLBA3:		.EQU	CFBASE + $06		; LBA bits 24-27 (R/W, LBA mode)
+0020+  01FE             CFSTAT:		.EQU	CFBASE + $07		; Status (R)
+0021+  01FE             CFCMD:		.EQU	CFBASE + $07		; Command (W)	
+0022+  01FE             
+0023+  01FE             ;***************************************************************************
+0024+  01FE             ;CF_INIT
+0025+  01FE             ;Function: Initialize CF to 8 bit data transfer mode
+0026+  01FE             ;***************************************************************************	
+0027+  01FE             CF_INIT:
+0028+  01FE CD 10 02    	CALL	LOOP_BUSY
+0029+  0201 3E 01       	LD		A,$01						;LD features register to enable 8 bit
+0030+  0203 D3 21       	OUT		(CFFEAT),A
+0031+  0205 CD 10 02    	CALL	LOOP_BUSY
+0032+  0208 3E EF       	LD		A,$EF						;Send set features command
+0033+  020A D3 27       	OUT		(CFCMD),A
+0034+  020C CD 10 02    	CALL	LOOP_BUSY
+0035+  020F C9          	RET
+0036+  0210             
+0037+  0210             ;***************************************************************************
+0038+  0210             ;LOOP_BUSY
+0039+  0210             ;Function: Loops until status register bit 7 (busy) is 0
+0040+  0210             ;***************************************************************************	
+0041+  0210             LOOP_BUSY:
+0042+  0210 DB 27       	IN		A, (CFSTAT)					;Read status
+0043+  0212 E6 80       	AND		%10000000					;Mask busy bit
+0044+  0214 C2 10 02    	JP		NZ,LOOP_BUSY				;Loop until busy(7) is 0
+0045+  0217 C9          	RET
+0046+  0218             
+0047+  0218             ;***************************************************************************
+0048+  0218             ;LOOP_CMD_RDY
+0049+  0218             ;Function: Loops until status register bit 7 (busy) is 0 and drvrdy(6) is 1
+0050+  0218             ;***************************************************************************	
+0051+  0218             LOOP_CMD_RDY:
+0052+  0218 DB 27       	IN		A,(CFSTAT)					;Read status
+0053+  021A E6 C0       	AND		%11000000					;mask off busy and rdy bits
+0054+  021C EE 40       	XOR		%01000000					;we want busy(7) to be 0 and drvrdy(6) to be 1
+0055+  021E C2 18 02    	JP		NZ,LOOP_CMD_RDY
+0056+  0221 C9          	RET
+0057+  0222             
+0058+  0222             ;***************************************************************************
+0059+  0222             ;LOOP_DAT_RDY
+0060+  0222             ;Function: Loops until status register bit 7 (busy) is 0 and drq(3) is 1
+0061+  0222             ;***************************************************************************		
+0062+  0222             LOOP_DAT_RDY:
+0063+  0222 DB 27       	IN		A,(CFSTAT)					;Read status
+0064+  0224 E6 88       	AND		%10001000					;mask off busy and drq bits
+0065+  0226 EE 08       	XOR		%00001000					;we want busy(7) to be 0 and drq(3) to be 1
+0066+  0228 C2 22 02    	JP		NZ,LOOP_DAT_RDY
+0067+  022B C9          	RET
+0068+  022C             	
+0069+  022C             ;***************************************************************************
+0070+  022C             ;CF_RD_CMD
+0071+  022C             ;Function: Gets a sector (512 bytes) into RAM buffer.
+0072+  022C             ;***************************************************************************			
+0073+  022C             CF_RD_CMD:
+0074+  022C CD 18 02    	CALL	LOOP_CMD_RDY				;Make sure drive is ready for command
+0075+  022F 3E 20       	LD		A,$20						;Prepare read command
+0076+  0231 D3 27       	OUT		(CFCMD),A					;Send read command
+0077+  0233 CD 22 02    	CALL	LOOP_DAT_RDY				;Wait until data is ready to be read
+0078+  0236 DB 27       	IN		A,(CFSTAT)					;Read status
+0079+  0238 E6 01       	AND		%00000001					;mask off error bit
+0080+  023A C2 2C 02    	JP		NZ,CF_RD_CMD				;Try again if error
+0081+  023D 21 00 80    	LD 		HL,CFSECT_BUFF
+0082+  0240 06 00       	LD 		B,0							;read 256 words (512 bytes per sector)
+0083+  0242             CF_RD_SECT:
+0084+  0242 CD 22 02    	CALL	LOOP_DAT_RDY	
+0085+  0245 DB 20       	IN 		A,(CFDATA)					;get byte of ide data	
+0086+  0247 77          	LD 		(HL),A
+0087+  0248 23          	INC 	HL
+0088+  0249 CD 22 02    	CALL	LOOP_DAT_RDY
+0089+  024C DB 20       	IN 		A,(CFDATA)					;get byte of ide data	
+0090+  024E 77          	LD 		(HL),A
+0091+  024F 23          	INC 	HL
+0092+  0250 10 F0       	DJNZ 	CF_RD_SECT
+0093+  0252 C9          	RET
+0094+  0253             	
+0095+  0253             ;***************************************************************************
+0096+  0253             ;CF_TEST
+0097+  0253             ;Function: Read sector 0 into RAM buffer.
+0098+  0253             ;***************************************************************************	
+0099+  0253 43 46 20 43 CF_MSG_1: .BYTE "CF Card Test\r\n",EOS
+0099+  0257 61 72 64 20 
+0099+  025B 54 65 73 74 
+0099+  025F 0D 0A FF 
+0100+  0262 52 65 61 64 CF_MSG_2: .BYTE "Reading sector 0 into RAM buffer...\r\n",EOS
+0100+  0266 69 6E 67 20 
+0100+  026A 73 65 63 74 
+0100+  026E 6F 72 20 30 
+0100+  0272 20 69 6E 74 
+0100+  0276 6F 20 52 41 
+0100+  027A 4D 20 62 75 
+0100+  027E 66 66 65 72 
+0100+  0282 2E 2E 2E 0D 
+0100+  0286 0A FF 
+0101+  0288 53 65 63 74 CF_MSG_3: .BYTE "Sector 0 read ...\r\n",EOS
+0101+  028C 6F 72 20 30 
+0101+  0290 20 72 65 61 
+0101+  0294 64 20 2E 2E 
+0101+  0298 2E 0D 0A FF 
+0102+  029C             
+0103+  029C             CF_TEST:
+0104+  029C 21 53 02    	LD 		HL,CF_MSG_1					;Print some messages 
+0105+  029F CD 31 04    	CALL    PRINT_STRING
+0106+  02A2 21 62 02    	LD 		HL,CF_MSG_2	
+0107+  02A5 CD 31 04    	CALL    PRINT_STRING
+0108+  02A8 CD 10 02    	CALL 	LOOP_BUSY
+0109+  02AB 3E 01       	LD 		A,1
+0110+  02AD D3 22       	OUT 	(CFSECCO),A					;Deal with only one sector at a time (512 bytes)
+0111+  02AF CD 10 02    	CALL 	LOOP_BUSY
+0112+  02B2 3E 00       	LD      A,$00
+0113+  02B4 D3 23       	OUT		(CFLBA0),A					;LBA 0:7
+0114+  02B6 CD 10 02    	CALL 	LOOP_BUSY
+0115+  02B9 3E 00       	LD      A,$00
+0116+  02BB D3 24       	OUT		(CFLBA1),A					;LBA 8:15
+0117+  02BD CD 10 02    	CALL 	LOOP_BUSY
+0118+  02C0 3E 00       	LD      A,$00
+0119+  02C2 D3 25       	OUT 	(CFLBA2),A					;LBA 16:23
+0120+  02C4 CD 10 02    	CALL 	LOOP_BUSY
+0121+  02C7 3E E0       	LD 		A,$E0						;Selects CF as master
+0122+  02C9 D3 26       	OUT 	(CFLBA3),A					;LBA 24:27 + DRV 0 selected + bits 5:7=111
+0123+  02CB CD 2C 02    	CALL	CF_RD_CMD
+0124+  02CE 21 88 02    	LD 		HL,CF_MSG_3			
+0125+  02D1 CD 31 04    	CALL    PRINT_STRING
+0126+  02D4 C9          	RET
+0127+  02D5             	0114   02D5             #INCLUDE	"MONCommands.asm"
+0001+  02D5             ;***************************************************************************
+0002+  02D5             ;  PROGRAM:			MONCommands        
+0003+  02D5             ;  PURPOSE:			Subroutines for all monitor commands
+0004+  02D5             ;  ASSEMBLER:		TASM 3.2        
+0005+  02D5             ;  LICENCE:			The MIT Licence
+0006+  02D5             ;  AUTHOR :			MCook
+0007+  02D5             ;  CREATE DATE :	06 May 15
+0008+  02D5             ;***************************************************************************
+0009+  02D5             
+0010+  02D5             ;***************************************************************************
+0011+  02D5             ;HELP_COMMAND
+0012+  02D5             ;Function: Print help dialogue box
+0013+  02D5             ;***************************************************************************
+0014+  02D5 5A 4D 43 38 HELP_MSG_1: .BYTE "ZMC80 Monitor Command List\r\n",EOS
+0014+  02D9 30 20 4D 6F 
+0014+  02DD 6E 69 74 6F 
+0014+  02E1 72 20 43 6F 
+0014+  02E5 6D 6D 61 6E 
+0014+  02E9 64 20 4C 69 
+0014+  02ED 73 74 0D 0A 
+0014+  02F1 FF 
+0015+  02F2 3F 20 2D 20 HELP_MSG_2: .BYTE "? - view command list\r\n",EOS
+0015+  02F6 76 69 65 77 
+0015+  02FA 20 63 6F 6D 
+0015+  02FE 6D 61 6E 64 
+0015+  0302 20 6C 69 73 
+0015+  0306 74 0D 0A FF 
+0016+  030A 52 20 2D 20 HELP_MSG_3: .BYTE "R - monitor reset\r\n",EOS
+0016+  030E 6D 6F 6E 69 
+0016+  0312 74 6F 72 20 
+0016+  0316 72 65 73 65 
+0016+  031A 74 0D 0A FF 
+0017+  031E 43 20 2D 20 HELP_MSG_4: .BYTE "C - clear screen\r\n",EOS
+0017+  0322 63 6C 65 61 
+0017+  0326 72 20 73 63 
+0017+  032A 72 65 65 6E 
+0017+  032E 0D 0A FF 
+0018+  0331 44 20 2D 20 HELP_MSG_5: .BYTE "D - print $80 bytes from specified location\r\n",EOS
+0018+  0335 70 72 69 6E 
+0018+  0339 74 20 24 38 
+0018+  033D 30 20 62 79 
+0018+  0341 74 65 73 20 
+0018+  0345 66 72 6F 6D 
+0018+  0349 20 73 70 65 
+0018+  034D 63 69 66 69 
+0018+  0351 65 64 20 6C 
+0018+  0355 6F 63 61 74 
+0018+  0359 69 6F 6E 0D 
+0018+  035D 0A FF 
+0019+  035F             
+0020+  035F             HELP_COMMAND:
+0021+  035F 21 D5 02    			LD 		HL,HELP_MSG_1		;Print some messages
+0022+  0362 CD 31 04    			CALL    PRINT_STRING		
+0023+  0365 21 F2 02    			LD 		HL,HELP_MSG_2		
+0024+  0368 CD 31 04    			CALL    PRINT_STRING			
+0025+  036B 21 0A 03    			LD 		HL,HELP_MSG_3		
+0026+  036E CD 31 04    			CALL    PRINT_STRING
+0027+  0371 21 1E 03    			LD 		HL,HELP_MSG_4		
+0028+  0374 CD 31 04    			CALL    PRINT_STRING
+0029+  0377 21 31 03    			LD 		HL,HELP_MSG_5		
+0030+  037A CD 31 04    			CALL    PRINT_STRING
+0031+  037D 3E FF       			LD		A,$FF				;Load $FF into Acc so MON_COMMAND finishes
+0032+  037F C9          			RET
+0033+  0380             
+0034+  0380             ;***************************************************************************
+0035+  0380             ;MEMORY_DUMP_COMMAND
+0036+  0380             ;Function: Print $80 databytes from specified location
+0037+  0380             ;***************************************************************************
+0038+  0380 4D 65 6D 6F MDC_1: .BYTE "Memory Dump Command\r\n",EOS
+0038+  0384 72 79 20 44 
+0038+  0388 75 6D 70 20 
+0038+  038C 43 6F 6D 6D 
+0038+  0390 61 6E 64 0D 
+0038+  0394 0A FF 
+0039+  0396 4C 6F 63 61 MDC_2: .BYTE "Location to start in 4 digit HEX:",EOS
+0039+  039A 74 69 6F 6E 
+0039+  039E 20 74 6F 20 
+0039+  03A2 73 74 61 72 
+0039+  03A6 74 20 69 6E 
+0039+  03AA 20 34 20 64 
+0039+  03AE 69 67 69 74 
+0039+  03B2 20 48 45 58 
+0039+  03B6 3A FF 
+0040+  03B8 20 20 20 20 MDC_3: .BYTE "     00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F\r\n",EOS
+0040+  03BC 20 30 30 20 
+0040+  03C0 30 31 20 30 
+0040+  03C4 32 20 30 33 
+0040+  03C8 20 30 34 20 
+0040+  03CC 30 35 20 30 
+0040+  03D0 36 20 30 37 
+0040+  03D4 20 30 38 20 
+0040+  03D8 30 39 20 30 
+0040+  03DC 41 20 30 42 
+0040+  03E0 20 30 43 20 
+0040+  03E4 30 44 20 30 
+0040+  03E8 45 20 30 46 
+0040+  03EC 0D 0A FF 
+0041+  03EF             
+0042+  03EF             MEMORY_DUMP_COMMAND:
+0043+  03EF 21 80 03    			LD 		HL,MDC_1			;Print some messages 
+0044+  03F2 CD 31 04    			CALL    PRINT_STRING
+0045+  03F5 21 96 03    			LD 		HL,MDC_2	
+0046+  03F8 CD 31 04    			CALL    PRINT_STRING
+0047+  03FB CD 94 04    			CALL    GET_HEX_WORD		;HL now points to databyte location	
+0048+  03FE E5          			PUSH	HL					;Save HL that holds databyte location on stack
+0049+  03FF CD 4C 04    			CALL    PRINT_NEW_LINE		;Print some messages
+0050+  0402 CD 4C 04    			CALL    PRINT_NEW_LINE
+0051+  0405 21 B8 03    			LD 		HL,MDC_3	
+0052+  0408 CD 31 04    			CALL    PRINT_STRING
+0053+  040B CD 4C 04    			CALL    PRINT_NEW_LINE
+0054+  040E E1          			POP		HL					;Restore HL that holds databyte location on stack
+0055+  040F 0E 0A       			LD		C,10				;Register C holds counter of dump lines to print
+0056+  0411             MEMORY_DUMP_LINE:	
+0057+  0411 06 10       			LD		B,16				;Register B holds counter of dump bytes to print
+0058+  0413 CD C1 04    			CALL	PRINT_HEX_WORD		;Print dump line address in hex form
+0059+  0416 3E 20       			LD		A,' '				;Print spacer
+0060+  0418 CD 3C 04    			CALL	PRINT_CHAR
+0061+  041B 0D          			DEC		C					;Decrement C to keep track of number of lines printed
+0062+  041C             MEMORY_DUMP_BYTES:
+0063+  041C 7E          			LD		A,(HL)				;Load Acc with databyte HL points to
+0064+  041D CD B0 04    			CALL	PRINT_HEX_BYTE		;Print databyte in HEX form 
+0065+  0420 3E 20       			LD		A,' '				;Print spacer
+0066+  0422 CD 3C 04    			CALL	PRINT_CHAR	
+0067+  0425 23          			INC 	HL					;Increase HL to next address pointer
+0068+  0426 10 F4       			DJNZ	MEMORY_DUMP_BYTES	;Print 16 bytes out since B holds 16
+0069+  0428 41          			LD		B,C					;Load B with C to keep track of number of lines printed
+0070+  0429 CD 4C 04    			CALL    PRINT_NEW_LINE		;Get ready for next dump line
+0071+  042C 10 E3       			DJNZ	MEMORY_DUMP_LINE	;Print 10 line out since C holds 10 and we load B with C
+0072+  042E 3E FF       			LD		A,$FF				;Load $FF into Acc so MON_COMMAND finishes
+0073+  0430 C9          			RET
+0074+  0431             			0115   0431             #INCLUDE	"CONIO.asm"
+0001+  0431             ;***************************************************************************
+0002+  0431             ;  PROGRAM:			CONIO       
+0003+  0431             ;  PURPOSE:			Subroutines for console I/O
+0004+  0431             ;  ASSEMBLER:		TASM 3.2        
+0005+  0431             ;  LICENCE:			The MIT Licence
+0006+  0431             ;  AUTHOR :			MCook
+0007+  0431             ;  CREATE DATE :	19 May 15
+0008+  0431             ;***************************************************************************
+0009+  0431             
+0010+  0431             ;***************************************************************************
+0011+  0431             ;PRINT_STRING
+0012+  0431             ;Function: Prints string to terminal program
+0013+  0431             ;***************************************************************************
+0014+  0431             PRINT_STRING:
+0015+  0431 CD CE 01    			CALL    UART_PRNT_STR
+0016+  0434 C9          			RET
+0017+  0435             			
+0018+  0435             ;***************************************************************************
+0019+  0435             ;GET_CHAR
+0020+  0435             ;Function: Get upper case ASCII character from user into Accumulator
+0021+  0435             ;***************************************************************************			
+0022+  0435             GET_CHAR:
+0023+  0435 CD F8 01    			CALL	UART_RX				;Get char into Acc
+0024+  0438 CD 40 04    			CALL	TO_UPPER			;Character has to be upper case
+0025+  043B C9          			RET
+0026+  043C             			
+0027+  043C             ;***************************************************************************
+0028+  043C             ;PRINT_CHAR
+0029+  043C             ;Function: Get upper case ASCII character from Accumulator to UART
+0030+  043C             ;***************************************************************************			
+0031+  043C             PRINT_CHAR:
+0032+  043C CD E8 01    			CALL	UART_TX				;Echo character to terminal
+0033+  043F C9          			RET			
+0034+  0440             			
+0035+  0440             ;***************************************************************************
+0036+  0440             ;TO_UPPER
+0037+  0440             ;Function: Convert character in Accumulator to upper case 
+0038+  0440             ;***************************************************************************
+0039+  0440             TO_UPPER:       
+0040+  0440 FE 61       			CP      'a'             	; Nothing to do if not lower case
+0041+  0442 D8                      RET     C
+0042+  0443 FE 7B                   CP      'z' + 1         	; > 'z'?
+0043+  0445 D0                      RET     NC              	; Nothing to do, either
+0044+  0446 E6 5F                   AND     $5F             	; Convert to upper case
+0045+  0448 C9                      RET		
+0046+  0449             			
+0047+  0449             ;***************************************************************************
+0048+  0449             ;PRINT_NEW_LINE
+0049+  0449             ;Function: Prints carriage return and line feed
+0050+  0449             ;***************************************************************************			
+0051+  0449 0D 0A FF    NEW_LINE_STRING: 	.BYTE "\r\n",EOS
+0052+  044C             
+0053+  044C             PRINT_NEW_LINE:
+0054+  044C E5          			PUSH	HL
+0055+  044D 21 49 04    			LD 		HL,NEW_LINE_STRING			
+0056+  0450 CD 31 04    			CALL    PRINT_STRING			
+0057+  0453 E1          			POP		HL
+0058+  0454 C9          			RET
+0059+  0455             			
+0060+  0455             ;***************************************************************************
+0061+  0455             ;CHAR_ISHEX
+0062+  0455             ;Function: Checks if value in A is a hexadecimal digit, C flag set if true
+0063+  0455             ;***************************************************************************		
+0064+  0455             CHAR_ISHEX:         
+0065+  0455             										;Checks if Acc between '0' and 'F'
+0066+  0455 FE 47       			CP      'F' + 1       		;(Acc) > 'F'? 
+0067+  0457 D0                      RET     NC              	;Yes - Return / No - Continue
+0068+  0458 FE 30                   CP      '0'             	;(Acc) < '0'?
+0069+  045A D2 5F 04                JP      NC,CHAR_ISHEX_1 	;Yes - Jump / No - Continue
+0070+  045D 3F                      CCF                     	;Complement carry (clear it)
+0071+  045E C9                      RET
+0072+  045F             CHAR_ISHEX_1:       
+0073+  045F             										;Checks if Acc below '9' and above 'A'
+0074+  045F FE 3A       			CP      '9' + 1         	;(Acc) < '9' + 1?
+0075+  0461 D8                      RET     C               	;Yes - Return / No - Continue (meaning Acc between '0' and '9')
+0076+  0462 FE 41                   CP      'A'             	;(Acc) > 'A'?
+0077+  0464 D2 69 04                JP      NC,CHAR_ISHEX_2 	;Yes - Jump / No - Continue
+0078+  0467 3F                      CCF                     	;Complement carry (clear it)
+0079+  0468 C9                      RET
+0080+  0469             CHAR_ISHEX_2:        
+0081+  0469             										;Only gets here if Acc between 'A' and 'F'
+0082+  0469 37          			SCF                     	;Set carry flag to indicate the char is a hex digit
+0083+  046A C9                      RET
+0084+  046B             			
+0085+  046B             ;***************************************************************************
+0086+  046B             ;GET_HEX_NIBBLE
+0087+  046B             ;Function: Translates char to HEX nibble in bottom 4 bits of A
+0088+  046B             ;***************************************************************************
+0089+  046B             GET_HEX_NIB:      
+0090+  046B CD 35 04    			CALL	GET_CHAR
+0091+  046E CD 55 04                CALL    CHAR_ISHEX      	;Is it a hex digit?
+0092+  0471 D2 6B 04                JP      NC,GET_HEX_NIB  	;Yes - Jump / No - Continue
+0093+  0474 CD 3C 04    			CALL    PRINT_CHAR
+0094+  0477 FE 3A       			CP      '9' + 1         	;Is it a digit less or equal '9' + 1?
+0095+  0479 DA 7E 04                JP      C,GET_HEX_NIB_1 	;Yes - Jump / No - Continue
+0096+  047C D6 07                   SUB     $07             	;Adjust for A-F digits
+0097+  047E             GET_HEX_NIB_1:                
+0098+  047E D6 30       			SUB     '0'             	;Subtract to get nib between 0->15
+0099+  0480 E6 0F                   AND     $0F             	;Only return lower 4 bits
+0100+  0482 C9                      RET	
+0101+  0483             				
+0102+  0483             ;***************************************************************************
+0103+  0483             ;GET_HEX_BTYE
+0104+  0483             ;Function: Gets HEX byte into A
+0105+  0483             ;***************************************************************************
+0106+  0483             GET_HEX_BYTE:
+0107+  0483 CD 6B 04                CALL    GET_HEX_NIB			;Get high nibble
+0108+  0486 CB 07                   RLC     A					;Rotate nibble into high nibble
+0109+  0488 CB 07                   RLC     A
+0110+  048A CB 07                   RLC     A
+0111+  048C CB 07                   RLC     A
+0112+  048E 47                      LD      B,A					;Save upper four bits
+0113+  048F CD 6B 04                CALL    GET_HEX_NIB			;Get lower nibble
+0114+  0492 B0                      OR      B					;Combine both nibbles
+0115+  0493 C9                      RET				
+0116+  0494             			
+0117+  0494             ;***************************************************************************
+0118+  0494             ;GET_HEX_WORD
+0119+  0494             ;Function: Gets two HEX bytes into HL
+0120+  0494             ;***************************************************************************
+0121+  0494             GET_HEX_WORD:
+0122+  0494 F5          			PUSH    AF
+0123+  0495 CD 83 04                CALL    GET_HEX_BYTE		;Get high byte
+0124+  0498 67                      LD		H,A
+0125+  0499 CD 83 04                CALL    GET_HEX_BYTE    	;Get low byte
+0126+  049C 6F                      LD      L,A
+0127+  049D F1                      POP     AF
+0128+  049E C9                      RET
+0129+  049F             		
+0130+  049F             ;***************************************************************************
+0131+  049F             ;PRINT_HEX_NIB
+0132+  049F             ;Function: Prints a low nibble in hex notation from Acc to the serial line.
+0133+  049F             ;***************************************************************************
+0134+  049F             PRINT_HEX_NIB:
+0135+  049F F5          			PUSH 	AF
+0136+  04A0 E6 0F                   AND     $0F             	;Only low nibble in byte
+0137+  04A2 C6 30                   ADD     A,'0'             	;Adjust for char offset
+0138+  04A4 FE 3A                   CP      '9' + 1         	;Is the hex digit > 9?
+0139+  04A6 DA AB 04                JP      C,PRINT_HEX_NIB_1	;Yes - Jump / No - Continue
+0140+  04A9 C6 07                   ADD     A,'A' - '0' - $0A 	;Adjust for A-F
+0141+  04AB             PRINT_HEX_NIB_1:
+0142+  04AB CD 3C 04    			CALL	PRINT_CHAR        	;Print the nibble
+0143+  04AE F1          			POP		AF
+0144+  04AF C9          			RET
+0145+  04B0             				
+0146+  04B0             ;***************************************************************************
+0147+  04B0             ;PRINT_HEX_BYTE
+0148+  04B0             ;Function: Prints a byte in hex notation from Acc to the serial line.
+0149+  04B0             ;***************************************************************************		
+0150+  04B0             PRINT_HEX_BYTE:
+0151+  04B0 F5          			PUSH	AF					;Save registers
+0152+  04B1 C5                      PUSH    BC
+0153+  04B2 47                      LD		B,A					;Save for low nibble
+0154+  04B3 0F                      RRCA						;Rotate high nibble into low nibble
+0155+  04B4 0F          			RRCA
+0156+  04B5 0F          			RRCA
+0157+  04B6 0F          			RRCA
+0158+  04B7 CD 9F 04                CALL    PRINT_HEX_NIB		;Print high nibble
+0159+  04BA 78                      LD		A,B					;Restore for low nibble
+0160+  04BB CD 9F 04                CALL    PRINT_HEX_NIB		;Print low nibble
+0161+  04BE C1                      POP     BC					;Restore registers
+0162+  04BF F1                      POP		AF
+0163+  04C0 C9          			RET
+0164+  04C1             			
+0165+  04C1             ;***************************************************************************
+0166+  04C1             ;PRINT_HEX_WORD
+0167+  04C1             ;Function: Prints the four hex digits of a word to the serial line from HL
+0168+  04C1             ;***************************************************************************
+0169+  04C1             PRINT_HEX_WORD:     
+0170+  04C1 E5          			PUSH 	HL
+0171+  04C2 F5                      PUSH	AF
+0172+  04C3 7C                      LD		A,H
+0173+  04C4 CD B0 04    			CALL	PRINT_HEX_BYTE		;Print high byte
+0174+  04C7 7D                      LD		A,L
+0175+  04C8 CD B0 04                CALL    PRINT_HEX_BYTE		;Print low byte
+0176+  04CB F1                      POP		AF
+0177+  04CC E1          			POP		HL
+0178+  04CD C9                      RET		
+0179+  04CE             			0116   04CE             
+0117   04CE             .END
+ADDR  00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F
+-----------------------------------------------------
+0000  F3 C3 00 01 00 00 00 00 00 00 00 00 00 00 00 00
+0010  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+0020  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+0030  00 00 00 00 00 00 00 00 C3 38 00 00 00 00 00 00
+0040  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+0050  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+0060  00 00 00 00 00 00 C3 66 00 00 00 00 00 00 00 00
+0070  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+0080  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+0090  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00A0  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00B0  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00C0  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00D0  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00E0  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00F0  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+0100  31 FF 87 CD B9 01 CD FE 01 CD 6F 01 CD 87 01 76
+0110  0C FF 21 10 01 CD 31 04 C9 C3 00 00 0D 0A 5A 4D
+0120  43 38 30 20 43 6F 6D 70 75 74 65 72 09 09 32 30
+0130  31 35 20 4D 43 6F 6F 6B 0D 0A 0D 0A FF 52 4F 4D
+0140  20 4D 6F 6E 69 74 6F 72 20 76 30 2E 31 0D 0A 0D
+0150  0A FF 09 20 49 6E 70 75 74 20 3F 20 66 6F 72 20
+0160  63 6F 6D 6D 61 6E 64 20 6C 69 73 74 0D 0A FF CD
+0170  12 01 21 1C 01 CD 31 04 21 3D 01 CD 31 04 21 52
+0180  01 CD 31 04 C9 3E FF 21 85 01 CD 31 04 CD 35 04
+0190  CD 3C 04 CD 4C 04 CD 9F 01 CD 4C 04 C3 87 01 FE
+01A0  3F CC 5F 03 FE 44 CC EF 03 FE 43 CC 12 01 FE 52
+01B0  CC 19 01 FE 4C CC 9C 02 C9 3E 80 D3 03 3E 0C D3
+01C0  00 3E 00 D3 01 3E 03 D3 03 3E 01 D3 01 C9 F5 7E
+01D0  FE FF CA DC 01 CD E8 01 23 C3 CF 01 F1 C9 F5 DB
+01E0  05 CB 6F CA DF 01 F1 C9 CD DE 01 D3 00 C9 F5 DB
+01F0  05 CB 47 CA EF 01 F1 C9 CD EE 01 DB 00 C9 CD 10
+0200  02 3E 01 D3 21 CD 10 02 3E EF D3 27 CD 10 02 C9
+0210  DB 27 E6 80 C2 10 02 C9 DB 27 E6 C0 EE 40 C2 18
+0220  02 C9 DB 27 E6 88 EE 08 C2 22 02 C9 CD 18 02 3E
+0230  20 D3 27 CD 22 02 DB 27 E6 01 C2 2C 02 21 00 80
+0240  06 00 CD 22 02 DB 20 77 23 CD 22 02 DB 20 77 23
+0250  10 F0 C9 43 46 20 43 61 72 64 20 54 65 73 74 0D
+0260  0A FF 52 65 61 64 69 6E 67 20 73 65 63 74 6F 72
+0270  20 30 20 69 6E 74 6F 20 52 41 4D 20 62 75 66 66
+0280  65 72 2E 2E 2E 0D 0A FF 53 65 63 74 6F 72 20 30
+0290  20 72 65 61 64 20 2E 2E 2E 0D 0A FF 21 53 02 CD
+02A0  31 04 21 62 02 CD 31 04 CD 10 02 3E 01 D3 22 CD
+02B0  10 02 3E 00 D3 23 CD 10 02 3E 00 D3 24 CD 10 02
+02C0  3E 00 D3 25 CD 10 02 3E E0 D3 26 CD 2C 02 21 88
+02D0  02 CD 31 04 C9 5A 4D 43 38 30 20 4D 6F 6E 69 74
+02E0  6F 72 20 43 6F 6D 6D 61 6E 64 20 4C 69 73 74 0D
+02F0  0A FF 3F 20 2D 20 76 69 65 77 20 63 6F 6D 6D 61
+0300  6E 64 20 6C 69 73 74 0D 0A FF 52 20 2D 20 6D 6F
+0310  6E 69 74 6F 72 20 72 65 73 65 74 0D 0A FF 43 20
+0320  2D 20 63 6C 65 61 72 20 73 63 72 65 65 6E 0D 0A
+0330  FF 44 20 2D 20 70 72 69 6E 74 20 24 38 30 20 62
+0340  79 74 65 73 20 66 72 6F 6D 20 73 70 65 63 69 66
+0350  69 65 64 20 6C 6F 63 61 74 69 6F 6E 0D 0A FF 21
+0360  D5 02 CD 31 04 21 F2 02 CD 31 04 21 0A 03 CD 31
+0370  04 21 1E 03 CD 31 04 21 31 03 CD 31 04 3E FF C9
+0380  4D 65 6D 6F 72 79 20 44 75 6D 70 20 43 6F 6D 6D
+0390  61 6E 64 0D 0A FF 4C 6F 63 61 74 69 6F 6E 20 74
+03A0  6F 20 73 74 61 72 74 20 69 6E 20 34 20 64 69 67
+03B0  69 74 20 48 45 58 3A FF 20 20 20 20 20 30 30 20
+03C0  30 31 20 30 32 20 30 33 20 30 34 20 30 35 20 30
+03D0  36 20 30 37 20 30 38 20 30 39 20 30 41 20 30 42
+03E0  20 30 43 20 30 44 20 30 45 20 30 46 0D 0A FF 21
+03F0  80 03 CD 31 04 21 96 03 CD 31 04 CD 94 04 E5 CD
+0400  4C 04 CD 4C 04 21 B8 03 CD 31 04 CD 4C 04 E1 0E
+0410  0A 06 10 CD C1 04 3E 20 CD 3C 04 0D 7E CD B0 04
+0420  3E 20 CD 3C 04 23 10 F4 41 CD 4C 04 10 E3 3E FF
+0430  C9 CD CE 01 C9 CD F8 01 CD 40 04 C9 CD E8 01 C9
+0440  FE 61 D8 FE 7B D0 E6 5F C9 0D 0A FF E5 21 49 04
+0450  CD 31 04 E1 C9 FE 47 D0 FE 30 D2 5F 04 3F C9 FE
+0460  3A D8 FE 41 D2 69 04 3F C9 37 C9 CD 35 04 CD 55
+0470  04 D2 6B 04 CD 3C 04 FE 3A DA 7E 04 D6 07 D6 30
+0480  E6 0F C9 CD 6B 04 CB 07 CB 07 CB 07 CB 07 47 CD
+0490  6B 04 B0 C9 F5 CD 83 04 67 CD 83 04 6F F1 C9 F5
+04A0  E6 0F C6 30 FE 3A DA AB 04 C6 07 CD 3C 04 F1 C9
+04B0  F5 C5 47 0F 0F 0F 0F CD 9F 04 78 CD 9F 04 C1 F1
+04C0  C9 E5 F5 7C CD B0 04 7D CD B0 04 F1 E1 C9 00 00
+
+
+tasm: Number of errors = 0

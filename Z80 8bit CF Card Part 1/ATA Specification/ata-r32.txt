@@ -1,0 +1,3400 @@
+Copies of this proposal may be purchased from:            BSR X3.221
+Global Engineering, 2805 McGaw St, Irvine, CA 92714       X3T9.2/90-143
+800-854-7179        714-261-1455
+
+
+
+
+
+                   working draft proposed American National
+                      Standard for Information Systems -
+
+                             ATA (AT Attachment)
+
+                          Rev 3.2  October 16, 1992
+
+
+
+ 
+Secretariat
+
+Computer and Business Equipment Manufacturers Association (CBEMA)
+
+Abstract:  This standard defines an integrated bus interface between disk 
+drives and host processors. It provides a common point of attachment for 
+systems manufacturers, system integrators, and suppliers of intelligent 
+peripherals.
+
+
+draft proposed American National Standard
+
+This is a draft proposed American National Standard of Accredited Standards 
+Committee X3.  As such this is not a completed standard.  The X3T9 Technical 
+Committee may modify this document as a result of comments received during 
+public review and its approval as a standard.
+
+
+
+
+POINTS OF CONTACT:
+
+ John B. Lohmeyer                              I. Dal Allan
+ Chairman X3T9.2                               Vice-Chairman X3T9.2
+ NCR                                           ENDL
+ 1635 Aeroplaza Dr                             14426 Black Walnut Court
+ Colorado Springs  CO 80916                    Saratoga  CA 95070
+
+ 719-596-5795 x362                             408-867-6630
+
+
+
+An electronic copy of this document is available from the SCSI Bulletin Board 
+(719-574-0424). 
+
+This document has been prepared according to the style guide of the ISO 
+(International Organization of Standards). 
+
+
+If this document was printed in a 2-up form directly from the printer, NOTEs 
+had to be adjusted to fit into a half-page, which may have resulted in an 
+imperfect representation of the format within the NOTE. This is most likely to 
+occur if a series of NOTEs are mixed in without any line separation. 
+
+
+
+
+ATA was forwarded in August 1991 from X3T9.2 to X3T9 for further processing as 
+an American National Standard.  X3T9 authorized a letter ballot on forwarding 
+this document as a preliminary draft proposed American National Standard.
+
+X3 authorized a Public Review of Rev 3.0 of the document as a draft proposed 
+American National Standard.
+
+This revision reflects comments received during the 4-month Public Review, and 
+recommendations made by the ATA Working Group of X3T9.2. Amongst the technical 
+changes included herein that differ from the Rev 3.0 document are: 
+
+          NOP:
+               Additional command
+
+          Multiword DMA:      
+               Additional timing chart
+               Additions to Identify Drive
+               Additions to Set Features
+
+          SFF 44-pin:
+               Additional Annex
+
+          LBA (Logical Block Addressing):
+               Additional description
+               Additions to Identify Drive
+               Additions to Register descriptions
+
+All changes from Rev 3.0 are marked in bold. 
+
+Foreword: This Foreword is not part of American National Standard X3.***-199x.
+
+When the first IBM PC (Personal Computer) (tm) was introduced, there was no 
+hard disk capability for storage. Successive generations of product resulted 
+in the inclusion of a hard disk as the primary storage device. When the PC AT 
+(tm) was developed, a hard disk was the key to system performance, and the 
+controller interface became a de facto industry interface for the inclusion of 
+hard disks in PC ATs.
+
+The price of desktop systems has declined rapidly because of the degree of 
+integration to reduce the number of components and interconnects required to 
+build a product. A natural outgrowth of this integration was the inclusion of 
+controller functionality into the hard disk. 
+
+In October 1988 a number of peripheral suppliers formed the Common Access 
+Method Committee to encourage an industry-wide effort to adopt a common 
+software interface to dispatch input/output requests to SCSI peripherals. 
+Although this was the primary objective, a secondary goal was to specify what 
+is known as the AT Attachment interface. 
+
+Suggestions for improvement of this standard will be welcome. They should be 
+sent to the Computer and Business Equipment Manufacturers Association, 311 
+First Street N.W., Suite 500, Washington, DC 20001.
+
+This standard was processed and approved for submittal to ANSI by the 
+Accredited Standards Committee on Information Processing Systems, X3. 
+Committee approval of this standard does not necessarily imply that all 
+committee members voted for its approval. At the time it approved this 
+standard, the X3 Committee had the following members: 
+
+          X3 Committee list goes here:
+
+
+Subcommittee X3T9 on I/O interfaces, which reviewed this standard, had the 
+following members:
+
+          X3T9 Committee list goes here:
+
+
+
+
+Task Group X3T9.2 on Lower-Level Interfaces, which completed the development 
+of this standard, had the following members:
+
+          X3T9.2 Committee list goes here:
+
+
+
+The initial development work on this standard was done by the CAM Committee.
+
+The membership of the CAM Committee consisted of the following organizations:
+
+  Adaptec               Data Technology          NCR 
+  AMD                   Eastman Kodak            Olivetti 
+  Apple                 Emulex                   Quantum 
+  AT&T Bell Labs        Fujitsu uElectronics     Scientific Micro Systems 
+  Caliper               Future Domain            Seagate 
+  Cambrian Systems      Hewlett Packard          Sony 
+  Cipher Data           IBM                      Storage Dimensions 
+  Cirrus Logic          Imprimis                 Sun Microsystems 
+  Columbia Data         Interactive Systems      Syquest Technology 
+  CompuAdd              JVC                      Sytron 
+  Conner Peripherals    LMS OSD                  Trantor 
+  Dell Computer         Maxtor                   Western Digital 
+  Digital Equipment     Micropolis 
+  DPT                   Miniscribe 
+
+                           TABLE OF CONTENTS
+
+  1.          Scope                                                     1
+  1.1         Description of Clauses                                    1
+
+  2.          References                                                1
+  3.          General Description                                       1
+  3.1         Structure                                                 2
+
+  4.          Definitions and Conventions                               2
+  4.1         Definitions                                               2
+  4.2         Conventions                                               3
+
+  5.          Interface Cabling Requirements                            3
+  5.1         Configuration                                             3
+  5.2         Addressing Considerations                                 4
+  5.3         DC Cable and Connector                                    5
+  5.3.1       4-Pin Power                                               5
+  5.3.2       3-Pin Power                                               5
+  5.3.3       Device Grounding                                          6
+
+  5.4         I/O Connector                                             6
+  5.5         I/O Cable                                                 6
+
+  6.          Physical Interface                                        7
+  6.1         Signal Conventions                                        7
+  6.2         Signal Summary                                            7
+  6.3         Signal Descriptions                                       9
+  6.3.1       CS1FX- (Drive chip Select 0)                              9
+  6.3.2       CS3FX- (Drive chip Select 1)                              9
+  6.3.3       DA0-2 (Drive Address Bus)                                 10
+  6.3.4       DASP- (Drive Active/Drive 1 Present)                      10
+  6.3.5       DD0-DD15 (Drive Data Bus)                                 10
+  6.3.6       DIOR- (Drive I/O Read)                                    10
+  6.3.7       DIOW- (Drive I/O Write)                                   10
+  6.3.8       DMACK- (DMA Acknowledge) (Optional)                       10
+  6.3.9       DMARQ (DMA Request) (Optional)                            11
+  6.3.10      INTRQ (Drive Interrupt)                                   11
+  6.3.11      IOCS16- (Drive 16-bit I/O)                                11
+  6.3.12      IORDY (I/O Channel Ready) (Optional)                      12
+  6.3.13      PDIAG- (Passed Diagnostics)                               12
+  6.3.14      RESET- (Drive Reset)                                      12
+  6.3.15      SPSYNC:CSEL (Spindle Synchronization/Cable Select) 
+              (Optional)                                                12
+  6.3.15.1    SPSYNC (Spindle Synchronization) (Optional)               13
+  6.3.15.2    CSEL (Cable Select) (Optional)                            13
+
+  7.          Logical Interface                                         14
+  7.1         General                                                   14
+  7.1.1       Bit Conventions                                           14
+  7.1.2       Environment                                               14
+
+  7.2         I/O Register Descriptions                                 15
+  7.2.1       Alternate Status Register                                 16
+  7.2.2       Command Register                                          16
+  7.2.3       Cylinder High Register                                    16
+  7.2.4       Cylinder Low Register                                     17
+  7.2.5       Data Register                                             17
+  7.2.6       Device Control Register                                   17
+  7.2.7       Drive Address Register                                    17
+  7.2.8       Drive/Head Register                                       18
+  7.2.9       Error Register                                            18
+  7.2.10      Features Register                                         19
+  7.2.11      Sector Count Register                                     19
+  7.2.12      Sector Number Register                                    19
+  7.2.13      Status Register                                           19
+
+  8.          Programming Requirements                                  21
+  8.1         Reset Response                                            21
+  8.2         Translate Mode                                            22
+  8.3         Power Conditions                                          22
+  8.4         Error Posting                                             22
+
+  9.          Command Descriptions                                      23
+  9.1         Acknowledge Media Change (Removable)                      25
+  9.2         Boot - Post-Boot (Removable)                              25
+  9.3         Boot - Pre-Boot (Removable)                               25
+  9.4         Check Power Mode                                          26
+  9.5         Door Lock (Removable)                                     26
+  9.6         Door Unlock (Removable)                                   26
+  9.7         Execute Drive Diagnostic                                  26
+  9.8         Format Track                                              27
+  9.9         Identify Drive                                            28
+  9.9.1       Word 1: Number of cylinders                               29
+  9.9.2       Word 3: Number of heads                                   29
+  9.9.3       Word 4: Number of unformatted bytes per track             29
+  9.9.4       Word 5: Number of unformatted bytes per sector            30
+  9.9.5       Word 6: Number of sectors per track                       30
+  9.9.6       Word 10-19: Serial Number                                 30
+  9.9.7       Word 20: Buffer Type                                      30
+  9.9.8       Word 22: ECC bytes Available on Read/Write Long Commands  30
+  9.9.9       Word 23-26: Firmware Revision                             30
+  9.9.10      Word 27-46: Model Number                                  30
+  9.9.11      Word 51:  PIO data transfer cycle timing mode             30
+  9.9.12      Word 52:  DMA data transfer cycle timing mode             30
+  9.9.13      Word 54:  Number of current cylinders                     31
+  9.9.14      Word 55:  Number of current heads                         31
+  9.9.15      Word 56:  Number of current sectors per track             31
+  9.9.16      Word 57-58: Current capacity in sectors                   31
+  9.9.17      Word 59: Multiple Sector Setting                          31
+  9.9.18      Word 60-61: Total Number of User Addressable Sectors      31
+  9.9.19      Word 62: Single Word DMA Transfer                         31
+  9.9.20      Word 63: Multiword DMA Transfer                           31
+
+  9.10        Idle                                                      31
+  9.11        Idle Immediate                                            32
+  9.12        Initialize Drive Parameters                               32
+  9.13        NOP                                                       32
+  9.14        Read Buffer                                               32
+  9.15        Read DMA                                                  33
+  9.16        Read Long                                                 33
+  9.17        Read Multiple Command                                     33
+  9.18        Read Sector(s)                                            34
+  9.19        Read Verify Sector(s)                                     34
+  9.20        Recalibrate                                               35
+  9.21        Seek                                                      35
+  9.22        Set Features                                              35
+  9.23        Set Multiple Mode                                         36
+  9.24        Sleep                                                     36
+  9.25        Standby                                                   37
+  9.26        Standby Immediate                                         37
+  9.27        Write Buffer                                              37
+  9.28        Write DMA                                                 37
+  9.29        Write Long                                                37
+  9.30        Write Multiple Command                                    38
+  9.31        Write Same                                                38
+  9.32        Write Sector(s)                                           39
+  9.33        Write Verify                                              39
+
+  10.         Protocol Overview                                         39
+  10.1        PIO Data In Commands                                      40
+  10.1.1      PIO Read Command                                          40
+  10.1.2      PIO Read Aborted Command                                  40
+
+  10.2        PIO Data Out Commands                                     40
+  10.2.1      PIO Write Command                                         41
+  10.2.2      PIO Write Aborted Command                                 41
+
+  10.3        Non-Data Commands                                         41
+  10.4        Miscellaneous Commands                                    42
+  10.5        DMA Data Transfer Commands (Optional)                     42
+  10.5.1      Normal DMA Transfer                                       43
+  10.5.2      Aborted DMA Transfer                                      43
+  10.5.3      Aborted DMA Command                                       43
+
+  11.         Timing                                                    43
+  11.1        Deskewing                                                 43
+  11.2        Symbols                                                   43
+  11.3        Terms                                                     44
+  11.4        Data Transfers                                            45
+  11.5        Power On and Hard Reset                                   48
+
+                                   FIGURES
+
+  FIGURE 5-1:  ATA INTERFACE TO EMBEDDED BUS PERIPHERALS                4
+  FIGURE 5-2:  HOST BUS ADAPTER AND PERIPHERAL DEVICES                  4
+  FIGURE 5-3:  ATA INTERFACE TO CONTROLLER AND PERIPHERAL DEVICES       4
+  FIGURE 5-4:  40-PIN CONNECTOR MOUNTING                                6
+  FIGURE 6-1:  Cable Select                                             14
+  FIGURE 11-1:  PIO DATA TRANSFER TO/FROM DRIVE                         45
+  FIGURE 11-2:  IORDY TIMING REQUIREMENTS                               46
+  FIGURE 11-3:  SINGLE WORD DMA DATA TRANSFER                           46
+  FIGURE 11-4:  MULTIWORD DMA DATA TRANSFER                             47
+  FIGURE 11-5:  RESET SEQUENCE                                          48
+
+
+                                   TABLES
+
+  TABLE 5-1:  DC INTERFACE                                              5
+  TABLE 5-2:  DC INTERFACE                                              5
+  TABLE 5-3:  CABLE PARAMETERS                                          7
+  TABLE 6-1:  INTERFACE SIGNALS                                         8
+  TABLE 6-2:  INTERFACE SIGNALS DESCRIPTION                             9
+  TABLE 7-1:  I/O PORT FUNCTIONS/SELECTION ADDRESSES                    16
+  TABLE 8-1:  POWER CONDITIONS                                          22
+  TABLE 8-2:  REGISTER CONTENTS                                         23
+  TABLE 9-1:  COMMAND CODES AND PARAMETERS - Part 1 of 2                24
+  TABLE 9-1:  COMMAND CODES AND PARAMETERS - Part 2 of 2                25
+
+  TABLE 9-2:  DIAGNOSTIC CODES                                          27
+  TABLE 9-4:  SET FEATURE REGISTER DEFINITIONS                          35
+  TABLE C-1  SIGNAL ASSIGNMENTS FOR ATA                                 58
+
+                                                                       
+   Information Processing Systems --
+
+   AT Attachment Interface
+
+
+1. Scope
+
+This standard defines the AT Attachment Interface. 
+
+The CAM Committee was formed in October, 1988 and the first working document 
+of the AT Attachment was introduced in March, 1989. 
+
+1.1  Description of Clauses
+
+Clause 1 contains the Scope and Purpose. 
+
+Clause 2 contains Referenced and Related International Standards.
+
+Clause 3 contains the General Description. 
+
+Clause 4 contains the Glossary.
+
+Clause 5 contains the electrical and mechanical characteristics; covering the 
+interface cabling requirements of the DC, data cables and connectors. 
+
+Clause 6 contains the signal descriptions of the AT Attachment Interface.
+
+Clause 7 contains descriptions of the registers of the AT Attachment 
+Interface.
+
+Clause 8 describes the programming requirements of the AT Attachment 
+Interface.
+
+Clause 9 contains descriptions of the commands of the AT Attachment Interface.
+
+Clause 10 contains an overview of the protocol of the AT Attachment Interface.
+
+Clause 11 contains the interface timing diagrams. 
+
+Annex A is informative. 
+
+Annex B is informative. 
+
+Annex C is informative. 
+
+2. References
+
+None.
+
+3.  General Description
+
+The application environment for the AT Attachment Interface is any computer 
+which uses an AT Bus or 40-pin ATA interface. 
+
+The PC AT Bus (tm) is a widely used and implemented interface for which a 
+variety of peripherals have been manufactured. As a means of reducing size and 
+cost, a class of products has emerged which embed the controller functionality 
+in the drive. These new products utilize the AT Bus fixed disk interface 
+protocol, and a subset of the AT bus. Because of their compatibility with 
+existing AT hardware and software this interface quickly became a de facto 
+industry standard. 
+
+The purpose of the ATA standard is to define the de facto implementations.
+
+Software in the Operating System dispatches I/O (Input/Output) requests via 
+the AT Bus to peripherals which respond to direct commands. 
+
+3.1  Structure
+
+This standard relies upon specifications of the mechanical and electrical 
+characteristics of the AT Bus and a subset of the AT Bus specifically 
+developed for the direct attachment of peripherals. 
+
+Also defined are the methods by which commands are directed to peripherals, 
+the contents of registers and the method of data transfers. 
+
+4.  Definitions and Conventions
+
+4.1 Definitions
+
+For the purpose of this standard the following definitions apply:
+
+4.1.1 ATA (AT Attachment):  ATA defines a compatible register set and a 40-pin 
+connector and its associated signals. 
+
+4.1.2 CHS (Cylinder-Head-Sector): This term defines the addressing mode of the 
+drive as being by physical address.
+
+4.1.3 Data block: This term describes a data transfer, and is typically a 
+single sector, except when declared otherwise by use of the Set Multiple 
+command. 
+
+4.1.4 DMA (Direct Memory Access): A means of data transfer between 
+peripheral and host memory without processor intervention. 
+
+4.1.5 LBA (Logical Block Address): This term defines the addressing mode of 
+the drive as being by the linear mapping of sectors from 1 to n.
+
+4.1.6 Optional:  This term describes features which are not required by the 
+standard. However, if any feature defined by the standard is implemented, it 
+shall be done in the same way as defined by the standard. Describing a feature 
+as optional in the text is done to assist the reader. If there is a conflict 
+between text and tables on a feature described as optional, the table shall be 
+accepted as being correct. 
+
+4.1.7 PIO (Programmed Input/Output): A means of data transfer that requires 
+the use of the host processor.
+
+4.1.8 Reserved:  Where this term is used for bits, bytes and fields; the bits, 
+bytes and fields are set aside for future standardization, and shall be zero.
+
+4.1.9 VU (Vendor Unique):  This term is used to describe bits, bytes, 
+fields, code values and features which are not described in this standard, 
+and may be used in a way that varies between vendors. 
+
+4.2  Conventions
+
+Certain terms used herein are the proper names of signals. These are printed 
+in uppercase to avoid possible confusion with other uses of the same words; 
+e.g., ATTENTION. Any lowercase uses of these words have the normal American-
+English meaning. 
+
+A number of conditions, commands, sequence parameters, events, English text, 
+states or similar terms are printed with the first letter of each word in 
+uppercase and the rest lowercase; e.g., In, Out, Request Status. Any lowercase 
+uses of these words have the normal American-English meaning. 
+
+The American convention of numbering is used i.e., the thousands and higher 
+multiples are separated by a comma and a period is used as the decimal point. 
+This is equivalent to the ISO convention of a space and comma. 
+
+   American:          0.6                      ISO:          0,6
+                  1,000                                  1 000 
+              1,323,462.9                            1 323 462,9
+ 
+5. Interface Cabling Requirements 
+
+5.1  Configuration
+
+This standard provides the capability of operating on the AT Bus in a daisy 
+chained configuration with a second drive that operates in accordance with 
+these standards. One drive (selected as Drive 0) has been referred to as the 
+master in industry terms and the second (selected as Drive 1) has been 
+referred to as the slave (see Figure 5-3). 
+
+The designation as Drive 0 or Drive 1 may be made in a number of ways:
+
+ - a switch on the drive 
+ - a jumper plug on the drive 
+ - use of the Cable Select (CSEL) pin
+
+Data is transferred in parallel (8 or 16 bits) either to or from host memory 
+to the drive's buffer under the direction of commands previously transferred 
+from the host. The drive performs all of the operations necessary to properly 
+write data to, or read data from, the disk media. Data read from the media is 
+stored in the drive's buffer pending transfer to the host memory and data is 
+transferred from the host memory to the drive's buffer to be written to the 
+media. 
+
+         +-----------------------------------------------------+ 
+         |                                                     | 
+         |                       HOST                          | 
+         |                                                     | 
+         +---------------^-------------------------------------+ 
+                         |       ATA Interface 
+                         | _____________________ 
+                         |/                     | 
+                  +------v--+            +------v--+  
+                  | DRIVE 0 |            | DRIVE 1 |  
+                  +---------+            +---------+ 
+
+         FIGURE 5-1:  ATA INTERFACE TO EMBEDDED BUS PERIPHERALS
+
+         +-----------------------------------------------------+ 
+         |                                                     | 
+         |                       HOST                          | 
+         |                                                     | 
+         +------+====== AT Bus ======+-------------------------+ 
+                |                    |
+                |       ADAPTER      |
+                |                    |
+                +--------^-----------+
+                         |       ATA Interface 
+                         | _____________________ 
+                         |/                     | 
+                  +------v--+            +------v--+  
+                  | DRIVE 0 |            | DRIVE 1 |  
+                  +---------+            +---------+ 
+
+            FIGURE 5-2:  HOST BUS ADAPTER AND PERIPHERAL DEVICES 
+
+         +-----------------------------------------------------+ 
+         |                                                     | 
+         |                       HOST                          | 
+         |                                                     | 
+         +---------------^-------------------------------------+ 
+                         |       ATA Interface 
+                  +------v-----+ 
+                  |            | 
+                  | CONTROLLER | 
+                  |            | 
+                  +-^----^---^-+ 
+                    |    |   |__________________   Device Interface 
+                    | ___|_________________     |  e.g. ESDI, SCSI 
+                    |/   |                 |    | 
+                  +-v----v--+            +-v----v--+ 
+                  |  DRIVE  |            |  DRIVE  | 
+                  +---------+            +---------+ 
+
+      FIGURE 5-3:  ATA INTERFACE TO CONTROLLER AND PERIPHERAL DEVICES
+
+5.2  Addressing Considerations
+
+In traditional controller operation, only the selected controller receives 
+commands from the host following selection. In this standard, the register 
+contents go to both drives (and their embedded controllers). The host 
+discriminates between the two by using the DRV bit in the Drive/Head Register.
+
+5.3  DC Cable and Connector 
+
+The drive receives DC power through a 4-pin or a low-power application 3-pin 
+connector. 
+
+A drive designed for 3.3V applications may be plugged into a receptacle 
+designed to accept a drive designed for 5V applications, with 12V lines for 
+additional power. It is not required that the drive operate, but it is 
+recommended that precautions be taken to prevent damage to the drive. 
+
+A drive designed for 5V applications may be plugged into a receptacle designed 
+to accept a drive designed for 3.3V applications, with 5V lines for additional 
+power. It is not anticipated that damage could occur to the drive, but it is 
+likely to fail in an undetermined manner. 
+
+5.3.1  4-Pin Power
+
+The pin assignments are shown in Table 5-1. Recommended part numbers for the 
+mating connector to 18AWG cable are shown below, but equivalent parts may be 
+used. 
+
+     Connector (4 Pin)          AMP 1-480424-0 or equivalent.
+     Contacts (Loose Piece)     AMP 60619-4 or equivalent.
+     Contacts (Strip)           AMP 61117-4 or equivalent.
+
+                          TABLE 5-1:  DC INTERFACE 
+                  +------------------------+------------+
+                  | POWER LINE DESIGNATION | PIN NUMBER |
+                  +------------------------+------------+
+                  |      +12V              |    1-01    |
+                  |      +12V RETURN       |    1-02    |
+                  |      +5V RETURN        |    1-03    |
+                  |      +5V               |    1-04    |
+                  +------------------------+------------+
+
+5.3.2  3-Pin Power
+
+The pin assignments are shown in Table 5-2. Recommended part numbers for the 
+mating connector to 18AWG cable are shown below, but equivalent parts may be 
+used. 
+
+     Connector (3 Pin)          Molex 5484 39-27-0032 or equivalent.
+
+                          TABLE 5-2:  DC INTERFACE 
+                  +------------------------+------------+
+                  | POWER LINE DESIGNATION | PIN NUMBER |
+                  +------------+-----------+------------+
+                  |    +5V     |   +3.3V   |    1-01    |
+                  |    +12V    |   +5V     |    1-02    |
+                  |   Ground   |  Ground   |    1-03    |
+                  +------------+-----------+------------+
+
+5.3.3  Device Grounding 
+
+System ground may be connected to a "quick-connect" terminal equivalent to:
+
+     Drive Connector Terminal   AMP 61664-1 or equivalent.
+     Cable Connector Terminal   AMP 62137-2 or equivalent.
+
+Provision for tying the DC Logic ground and the chassis ground together or for 
+separating these two ground planes is vendor specific. 
+
+5.4  I/O Connector 
+
+The I/O connector is a 40-pin connector as shown in Figure 5-4, with pin 
+assignments as shown in Table 6-1. 
+
+The connector should be keyed to prevent the possibility of installing it 
+upside down. A key is provided by the removal of Pin 20. The corresponding pin 
+on the cable connector should be plugged. 
+
+The pin locations are governed by the cable plug, not the receptacle. The way 
+in which the receptacle is mounted on the Printed Circuit Board affects the 
+pin positions, and pin 1 should remain in the same relative position. This 
+means the pin numbers of the receptacle may not reflect the conductor number 
+of the plug. The header receptacle is not polarized, and all the signals are 
+relative to Pin 20, which is keyed. 
+
+By using the plug positions as primary, a straight cable can connect drives. 
+As shown in Figure 5-4, conductor 1 on pin 1 of the plug has to be in the 
+same relative position no matter what the receptacle numbering looks like. 
+If receptacle numbering was followed, the cable would have to twist 180 
+degrees between a drive with top-mounted receptacles, and a drive with 
+bottom-mounted receptacles. 
+
+        +-----------------------+
+        |                      1|
+        |40         20         2|
+      ==+==== Circuit Board ====+==       ==+==== Circuit Board ====+==
+                                            |                      1|
+                                            |40         20         2|
+                                            +-----------------------+
+                   FIGURE 5-4:  40-PIN CONNECTOR MOUNTING
+
+Recommended part numbers for the mating connector are shown below, but 
+equivalent parts may be used. 
+
+     Connector (40 Pin)             3M 3417-7000 or equivalent.
+     Strain relief                  3M 3448-2040 or equivalent.
+     Flat Cable (Stranded 28 AWG)   3M 3365-40 or equivalent.
+     Flat Cable (Stranded 28 AWG)   3M 3517-40 (Shielded) or equivalent.
+
+5.5  I/O Cable 
+
+The cable specifications affect system integrity and the maximum length that 
+can be supported in any application. 
+
+                        TABLE 5-3:  CABLE PARAMETERS
+        +--------------------------------------------+------+--------+
+        | Cable length of 0.46m (18 inches) *        |  Min |   Max  |
+        +--------------------------------------------+------+--------+
+        | Driver IoL Sink Current for 5V operation   | 12mA |        |
+        | Driver IoL Sink Current for 3.3V operation |  8mA |        |
+        | Driver IoH Source Current                  |      | -400uA |
+        | Cable Capacitive Loading                   |      |  200pF |
+        +--------------------------------------------+------+--------+   
+          * This distance may be exceeded in circumstances where the 
+         characteristics of both ends of the cable can be controlled.
+
+6.  Physical Interface
+
+6.1  Signal Conventions
+
+Signal names are shown in all upper case letters. Signals can be asserted 
+(active, true) in either a high (more positive voltage) or low (less positive 
+voltage) state. A dash character (-) at the beginning or end of a signal name 
+indicates it is asserted at the low level (active low). No dash or a plus 
+character (+) at the beginning or end of a signal name indicates it is 
+asserted high (active high). An asserted signal may be driven high or low by 
+an active circuit, or it may be allowed to be pulled to the correct state by 
+the bias circuitry. 
+
+Control signals that are asserted for one function when high and asserted for 
+another function when low are named with the asserted high function name 
+followed by a slash character (/), and the asserted low function name followed 
+with a dash (-) e.g. BITENA/BITCLR- enables a bit when high and clears a bit 
+when low. All signals are TTL compatible unless otherwise noted. Negated means 
+that the signal is driven by an active circuit to the state opposite to the 
+asserted state (inactive, or false) or may be simply released (in which case 
+the bias circuitry pulls it inactive, or false), at the option of the 
+implementor. 
+
+Control signals that may be used for two mutually exclusive functions are 
+identified with their two names separated by a colon e.g. SPSYNC:CSEL can be 
+used for either the Spindle Sync or the Cable Select functions.
+
+6.2  Signal Summary
+
+The physical interface consists of single ended TTL compatible receivers and 
+drivers communicating through a 40-conductor flat ribbon nonshielded cable 
+using an asynchronous interface protocol. The pin numbers and signal names 
+are shown in Table 6-1. Reserved signals shall be left unconnected. 
+
+                       TABLE 6-1:  INTERFACE SIGNALS 
+ +----------------------------------+                         +-----------+
+ |         HOST  I/O                |                         | DRIVE I/O | 
+ |         CONNECTOR                |                         | CONNECTOR | 
+ |                                  |                         |           | 
+ | HOST RESET                     1 | -----  RESET-  -------->| 1         | 
+ |                                2 | -----  Ground  -------- | 2         | 
+ | HOST DATA BUS BIT 7            3 |<-----  DD7  ----------->| 3         | 
+ | HOST DATA BUS BIT 8            4 |<-----  DD8  ----------->| 4         | 
+ | HOST DATA BUS BIT 6            5 |<-----  DD6  ----------->| 5         | 
+ | HOST DATA BUS BIT 9            6 |<-----  DD9  ----------->| 6         | 
+ | HOST DATA BUS BIT 5            7 |<-----  DD5  ----------->| 7         | 
+ | HOST DATA BUS BIT 10           8 |<-----  DD10  ---------->| 8         | 
+ | HOST DATA BUS BIT 4            9 |<-----  DD4  ----------->| 9         | 
+ | HOST DATA BUS BIT 11          10 |<-----  DD11  ---------->| 10        | 
+ | HOST DATA BUS BIT 3           11 |<-----  DD3  ----------->| 11        | 
+ | HOST DATA BUS BIT 12          12 |<-----  DD12  ---------->| 12        | 
+ | HOST DATA BUS BIT 2           13 |<-----  DD2  ----------->| 13        | 
+ | HOST DATA BUS BIT 13          14 |<-----  DD13  ---------->| 14        | 
+ | HOST DATA BUS BIT 1           15 |<-----  DD1  ----------->| 15        | 
+ | HOST DATA BUS BIT 14          16 |<-----  DD14  ---------->| 16        | 
+ | HOST DATA BUS BIT 0           17 |<-----  DD0  ----------->| 17        | 
+ | HOST DATA BUS BIT 15          18 |<-----  DD15  ---------->| 18        | 
+ |                               19 | -----  Ground  -------- | 19        | 
+ |                               20 | -----  (keypin)  ------ | 20        | 
+ | DMA REQUEST                   21 |<-----  DMARQ  --------- | 21        | 
+ |                               22 | -----  Ground  -------- | 22        | 
+ | HOST I/O WRITE                23 | -----  DIOW-  --------->| 23        | 
+ |                               24 | -----  Ground  -------- | 24        | 
+ | HOST I/O READ                 25 | -----  DIOR-  --------->| 25        | 
+ |                               26 | -----  Ground  -------- | 26        | 
+ | I/O CHANNEL READY             27 |<-----  IORDY  --------- | 27        | 
+ | SPINDLE SYNC or CABLE SELECT  28 |*---- SPSYNC:CSEL  -----*| 28        | 
+ | DMA ACKNOWLEDGE               29 | -----  DMACK-  -------->| 29        | 
+ |                               30 | -----  Ground  -------- | 30        | 
+ | HOST INTERRUPT REQUEST        31 |<-----  INTRQ  --------- | 31        | 
+ | HOST 16 BIT I/O               32 |<-----  IOCS16-  ------- | 32        | 
+ | HOST ADDRESS BUS BIT 1        33 | -----  DA1  ----------->| 33        | 
+ | PASSED DIAGNOSTICS            34 |*-----  PDIAG-  --------*| 34        | 
+ | HOST ADDRESS BUS BIT 0        35 | -----  DAO  ----------->| 35        | 
+ | HOST ADDRESS BUS BIT 2        36 | -----  DA2  ----------->| 36        | 
+ | HOST CHIP SELECT 0            37 | -----  CS1FX-  -------->| 37        | 
+ | HOST CHIP SELECT 1            38 | -----  CS3FX-  -------->| 38        | 
+ | DRIVE ACTIVE/DRIVE 1 PRESENT  39 |<-----  DASP-  ---------*| 39        | 
+ |                               40 | -----  Ground  -------- | 40        | 
+ +----------------------------------+                         +-----------+
+
+                     * Drive Intercommunication Signals
+
+       +---HOST---+       +-Drive 0-+                    +-Drive 1-+
+       |       28 | ----->| 28   28 |<-- SPSYNC:CSEL  -->| 28      |
+       |       34 | ----- | 34   34 |<----- PDIAG-  ---- | 34      |
+       |       39 |<----- | 39   39 |<----- DASP-  ----- | 39      |
+       +----------+       +---------+                    +---------+ 
+
+6.3  Signal Descriptions
+
+The interface signals and pins are described in more detail than shown in 
+Table 6-1. The signals are listed according to function, rather than in 
+numerical connector pin order. Table 6-2 lists signal name mnemonic, connector 
+pin number, whether input to (I) or output from (O) the drive, and full signal 
+name. 
+
+                 TABLE 6-2:  INTERFACE SIGNALS DESCRIPTION 
+ +--------+----+-----+
+ | Signal | Pin| I/O |
+ +--------+----+-----+-----------------------------------------------------+
+ | CS1FX- | 37 |  I  | Drive chip Select 0                                 |
+ | CS3FX- | 38 |  I  | Drive chip Select 1                                 |
+ | DA0    | 35 |  I  | Drive Address Bus - Bit 0                           |
+ | DA1    | 33 |  I  |                   - Bit 1                           |
+ | DA2    | 36 |  I  |                   - Bit 2                           |
+ | DASP-  | 39 | I/O | Drive Active/Drive 1 Present                        |
+ | DD0    | 17 | I/O | Drive Data Bus - Bit 0                              |
+ | DD1    | 15 | I/O |                - Bit 1                              | 
+ | DD2    | 13 | I/O |                - Bit 2                              |
+ | DD3    | 11 | I/O |                - Bit 3                              |
+ | DD4    |  9 | I/O |                - Bit 4                              |
+ | DD5    |  7 | I/O |                - Bit 5                              |
+ | DD6    |  5 | I/O |                - Bit 6                              |
+ | DD7    |  3 | I/O |                - Bit 7                              |
+ | DD8    |  4 | I/O |                - Bit 8                              |
+ | DD9    |  6 | I/O |                - Bit 9                              |
+ | DD10   |  8 | I/O |                - Bit 10                             |
+ | DD11   | 10 | I/O |                - Bit 11                             |
+ | DD12   | 12 | I/O |                - Bit 12                             |
+ | DD13   | 14 | I/O |                - Bit 13                             |
+ | DD14   | 16 | I/O |                - Bit 14                             |
+ | DD15   | 18 | I/O |                - Bit 15                             |
+ | DIOR-  | 25 |  I  | Drive I/O Read                                      |
+ | DIOW-  | 23 |  I  | Drive I/O Write                                     |
+ | DMACK- | 29 |  I  | DMA Acknowledge                                     |
+ | DMARQ  | 21 |  O  | DMA Request                                         |
+ | INTRQ  | 31 |  O  | Drive Interrupt                                     |
+ | IOCS16-| 32 |  O  | Drive 16-bit I/O                                    |
+ | IORDY  | 27 |  O  | I/O Channel Ready                                   |
+ | PDIAG- | 34 | I/O | Passed Diagnostics                                  |
+ | RESET- |  1 |  I  | Drive Reset                                         | 
+ | SPSYNC:| 28 |  -  | Spindle Sync                                        |
+ | CSEL   | 28 |  -  | Cable Select                                        |
+ | keypin | 20 |  -  | Pin used for keying the interface connector.        |
+ +--------+----+-----+-----------------------------------------------------+
+
+6.3.1 CS1FX- (Drive chip Select 0)
+
+This is the chip select signal decoded from the host address bus used to 
+select the Command Block Registers. 
+
+6.3.2 CS3FX- (Drive chip Select 1)
+
+This is the chip select signal decoded from the host address bus used to 
+select the Control Block Registers. 
+
+6.3.3 DA0-2 (Drive Address Bus) 
+
+This is the 3-bit binary coded address asserted by the host to access a 
+register or data port in the drive.  
+
+6.3.4 DASP- (Drive Active/Drive 1 Present)
+
+This is a time-multiplexed signal which indicates that a drive is active, or 
+that Drive 1 is present. This signal shall be an open collector output and 
+each drive shall have a 10K ohm pull-up resistor.
+
+During power on initialization or after RESET- is negated, DASP- shall be 
+asserted by Drive 1 within 400 msec to indicate that Drive 1 is present. 
+
+Drive 0 shall allow up to 450 msec for Drive 1 to assert DASP-. If Drive 1 is 
+not present, Drive 0 may assert DASP- to drive an activity LED. 
+
+DASP- shall be negated following acceptance of the first valid command by 
+Drive 1 or after 31 seconds, whichever comes first. 
+
+Any time after negation of DASP-, either drive may assert DASP- to indicate 
+that a drive is active. 
+
+  NOTE: Prior to the development of this standard, products were introduced 
+        which did not time multiplex DASP-. Some used two jumpers to indicate 
+        to Drive 0 whether Drive 1 was present. If such a drive is jumpered to 
+        indicate Drive 1 is present it should work successfully with a Drive 1 
+        which complies with this standard. If installed as Drive 1, such a 
+        drive may not work successfully because it may not assert DASP- for a 
+        long enough period to be recognized. However, it would assert DASP- 
+        to indicate that the drive is active. 
+
+6.3.5 DD0-DD15 (Drive Data Bus)
+
+This is an 8- or 16-bit bidirectional data bus between the host and the drive. 
+The lower 8 bits are used for 8-bit transfers e.g. registers, ECC bytes and, 
+if the drive supports the Features Register capability to enable 8-bit-only 
+data transfers (see 9.21).
+
+6.3.6 DIOR- (Drive I/O Read)
+
+This is the Read strobe signal. The falling edge of DIOR- enables data from a 
+register or the data port of the drive onto the host data bus, DD0-DD7 or DD0-
+DD15. The rising edge of DIOR- latches data at the host. 
+
+6.3.7 DIOW- (Drive I/O Write)
+
+This is the Write strobe signal. The rising edge of DIOW- clocks data from the 
+host data bus, DD0-DD7 or DD0-DD15, into a register or the data port of the 
+drive. 
+
+6.3.8 DMACK- (DMA Acknowledge) (Optional)
+
+This signal shall be used by the host in response to DMARQ to either 
+acknowledge that data has been accepted, or that data is available.
+
+6.3.9 DMARQ (DMA Request) (Optional)
+
+This signal, used for DMA data transfers between host and drive, shall be 
+asserted by the drive when it is ready to transfer data to or from the host. 
+The direction of data transfer is controlled by DIOR- and DIOW-. This signal 
+is used in a handshake manner with DMACK- i.e. the drive shall wait until the 
+host asserts DMACK- before negating DMARQ, and re-asserting DMARQ if there is 
+more data to transfer. 
+
+When a DMA operation is enabled, IOCS16-, CS1FX- and CS3FX- shall not be 
+asserted and transfers shall be 16-bits wide. 
+
+  NOTE: ATA products with DMA capability require a pull-down resistor on this 
+        signal to prevent spurious data transfers. This resistor may affect 
+        driver requirements for drives sharing this signal in systems with 
+        unbuffered ATA signals. 
+
+6.3.10 INTRQ (Drive Interrupt)
+
+This signal is used to interrupt the host system. INTRQ is asserted only when 
+the drive has a pending interrupt, the drive is selected, and the host has 
+cleared nIEN in the Device Control Register. If nIEN=1, or the drive is not 
+selected, this output is in a high impedance state, regardless of the presence 
+or absence of a pending interrupt. 
+
+INTRQ shall be negated by:
+
+ - assertion of RESET- or
+ - the setting of SRST of the Device Control Register, or 
+ - the host writing the Command Register or
+ - the host reading the Status Register 
+
+  NOTE: Some drives may negate INTRQ on a PIO data transfer completion, except 
+        on a single sector read or on the last sector of a multi-sector read.
+
+On PIO transfers, INTRQ is asserted at the beginning of each data block to be 
+transferred. A data block is typically a single sector, except when 
+declared otherwise by use of the Set Multiple command. An exception occurs on 
+Format Track, Write Sector(s), Write Buffer and Write Long commands - INTRQ 
+shall not be asserted at the beginning of the first data block to be 
+transferred.
+
+On DMA transfers, INTRQ is asserted only once, after the command has 
+completed. 
+
+6.3.11 IOCS16- (Drive 16-bit I/O)
+
+Except for DMA transfers, IOCS16- indicates to the host system that the 16-bit 
+data port has been addressed and that the drive is prepared to send or receive 
+a 16-bit data word. This shall be an open collector output. 
+
+ - When transferring in PIO mode, If IOCS16- is not asserted, transfers shall 
+   be 8-bit using DD0-7. 
+ - When transferring in PIO mode, if IOCS16- is asserted, transfers shall be 
+   16-bit using DD0-15. 
+   for 16-bit data transfers. 
+ - When transferring in DMA mode, the host shall use a 16-bit DMA channel and 
+   IOCS16- shall not be asserted. 
+
+6.3.12 IORDY (I/O Channel Ready) (Optional)
+
+This signal is negated to extend the host transfer cycle of any host register 
+access (Read or Write) when the drive is not ready to respond to a data 
+transfer request. When IORDY is not negated, IORDY shall be in a high 
+impedance state. 
+
+6.3.13 PDIAG- (Passed Diagnostics)
+
+This signal shall be asserted by Drive 1 to indicate to Drive 0 that it has 
+completed diagnostics. A 10K ohm pull-up resistor shall be used on this signal 
+by each drive. 
+
+Following a power on reset, software reset or RESET-, Drive 1 shall negate 
+PDIAG- within 1 msec (to indicate to Drive 0 that it is busy). Drive 1 shall 
+then assert PDIAG- within 30 seconds to indicate that it is no longer busy, 
+and is able to provide status. After the assertion of PDIAG-, Drive 1 may be 
+unable to accept commands until it has finished its reset procedure and is 
+Ready (DRDY=1). 
+
+Following the receipt of a valid Execute Drive Diagnostics command, Drive 
+1 shall negate PDIAG- within 1 msec to indicate to Drive 0 that it is busy 
+and has not yet passed its drive diagnostics. If Drive 1 is present then 
+Drive 0 shall wait for up to 5 seconds from the receipt of a valid Execute 
+Drive Diagnostics command for Drive 1 to assert PDIAG-. Drive 1 should 
+clear BSY before asserting PDIAG-, as PDIAG- is used to indicate that 
+Drive 1 has passed its diagnostics and is ready to post status.
+
+If DASP- was not asserted by Drive 1 during reset initialization, Drive 0 
+shall post its own status immediately after it completes diagnostics, and 
+clear the Drive 1 Status Register to 00h. Drive 0 may be unable to accept 
+commands until it has finished its reset procedure and is Ready (DRDY=1). 
+
+6.3.14 RESET- (Drive Reset)
+
+This signal from the host system shall be asserted for at least 25 usec after 
+voltage levels have stabilized during power on and negated thereafter unless 
+some event requires that the drive(s) be reset following power on.
+
+6.3.15  SPSYNC:CSEL (Spindle Synchronization/Cable Select) (Optional) 
+
+This signal shall have a 10K ohm pull-up resistor.
+
+This is a dual purpose signal and either or both functions may be implemented. 
+If both functions are implemented then they cannot be active concurrently: the 
+choice as to which is active is made by a vendor-defined switch. 
+
+All drives connected to the same cable should have the same function active at 
+the same time. If SPSYNC and CSEL are mixed on the same cable, then drive 
+behaviour is undefined. 
+
+Prior to the introduction of this standard, this signal was defined as DALE 
+(Drive Address Latch Enable), and used for an address valid indication from 
+the host system. If used, the host address and chip selects, DAO through DA2, 
+CS1FX-, and CS3FX- were valid at the negation of this signal and remained 
+valid while DALE was negated, therefore, the drive did not need to latch these 
+signals with DALE. 
+
+6.3.15.1  SPSYNC (Spindle Synchronization) (Optional) 
+
+This signal may be either input or output to the drive depending on a vendor-
+defined switch. If a drive is set to Master the signal is output, and if a 
+drive is set to slave the signal is input.
+
+There is no requirement that each drive implementation be plug-compatible to 
+the extent that a multiple vendor drive subsystem be operable. Mix and match 
+of different manufacturers drives is unlikely because rpm, sync fields, sync 
+bytes etc need to be virtually identical. However, if drives are designed to 
+match the following recommendation, controllers can operate drives with a 
+single implementation. 
+
+There can only be one master drive at a time in a configuration. The host or 
+the drive designated as master can generate SPSYNC at least once per rotation, 
+but may be at a higher frequency. 
+
+SPSYNC received by a drive is used as the synchronization signal to lock the 
+spindles in step. The time to achieve synchronization varies, and is indicated 
+by the drive setting DRDY i.e. if the drive does not achieve synchronization 
+following power on or a reset, it shall not set DRDY. 
+
+A master drive or the host generates SPSYNC and transmits it. 
+
+A slave drive does not generate SPSYNC and is responsible to synchronize its 
+index to SPSYNC.
+
+If a drive does not support synchronization, it shall ignore SPSYNC. 
+
+In the event that a drive previously synchronized loses synchronization, but 
+is otherwise operational, it does not clear DRDY.
+
+6.3.15.2  CSEL (Cable Select) (Optional) 
+
+The drive is configured as either Drive 0 or Drive 1 depending upon the value 
+of CSEL:
+
+ - If CSEL is grounded then the drive address is 0
+ - If CSEL is open then the drive address is 1
+
+Special cabling can be used by the system manufacturer to selectively ground 
+CSEL e.g. CSEL of Drive 0 is connected to the CSEL conductor in the cable, and 
+is grounded, thus allowing the drive to recognize itself as Drive 0. CSEL of 
+Drive 1 is not connected to CSEL because the conductor is removed, thus the 
+drive can recognize itself as Drive 1. 
+
+              ______ CSEL Conductor _________________________      
+             |                            |                Open
+             |Ground                      |                  | 
+          +------+                   +---------+        +---------+
+          | Host |                   | Drive 0 |        | Drive 1 |
+          +------+                   +---------+        +---------+
+
+              ______ CSEL Conductor _________________________
+             |                          Open                 |  
+             |Ground                      |                  |
+          +------+                   +---------+        +---------+
+          | Host |                   | Drive 1 |        | Drive 0 |
+          +------+                   +---------+        +---------+
+
+                          FIGURE 6-1:  Cable Select 
+
+7.  Logical Interface 
+
+7.1  General 
+
+7.1.1  Bit Conventions
+
+Bit names are shown in all upper case letters except where a lower case n 
+precedes a bit name. This indicates that when nBIT=0 (bit is zero) the action 
+is true and when nBIT=1 (bit is one) the action is false. If there is no 
+preceding n, then when BIT=1 it is true, and when BIT=0 it is false. 
+
+A bit can be set to one or cleared to zero and polarity influences whether it 
+is to be interpreted as true or false:
+
+          True      BIT=1       nBIT=0 
+          False     BIT=0       nBIT=1 
+
+7.1.2  Environment
+
+The drives using this interface shall be programmed by the host computer to 
+perform commands and return status to the host at command completion. When two 
+drives are daisy chained on the interface, commands are written in parallel to 
+both drives, and for all except the Execute Diagnostics command, only the 
+selected drive executes the command. On an Execute Diagnostics command 
+addressed to Drive 0, both drives shall execute the command, and Drive 1 shall 
+post its status to Drive 0 via PDIAG-.
+
+Drives are selected by the DRV bit in the Drive/Head Register (see 7.2.8), and 
+by a jumper or switch on the drive designating it as either a Drive 0 or as 
+Drive 1. When DRV=0, Drive 0 is selected. When DRV=1, Drive 1 is selected. 
+When drives are daisy chained, one shall be set as Drive 0 and the other as 
+Drive 1. When a single drive is attached to the interface it shall be set as 
+Drive 0. 
+
+Prior to the adoption of this standard, some drives may have provided jumpers 
+to indicate Drive 0 with no Drive 1 present, or Drive 0 with Drive 1 present.
+
+Throughout this document, drive selection always refers to the state of the 
+DRV bit, the position of the Drive 0/Drive 1 jumper or switch, or use of the 
+CSEL pin. 
+
+A drive can operate in either of two addressing modes, CHS or LBA, on a 
+command by command basis. A drive which can support LBA mode indicates this in 
+the Identify Drive Information. If the host selects LBA mode in the Drive/Head 
+register, Sector Number, Cylinder Low, Cylinder High and HS3-HS0 of the 
+Drive/Head Register contains the zero based-LBA.
+
+In LBA mode, the sectors on the drive are assumed to be linearly mapped with 
+an Inital definition of:
+
+        LBA 0 = Cylinder 0/Head 0/Sector 1.
+
+Irrespective of translate mode geometry set by the host, the LBA address of a 
+given sector does not change:
+
+  LBA = [ (Cylinder * No of Heads + Heads) * Sectors/Track ] + (Sector-1) 
+
+7.2  I/O Register Descriptions 
+
+Communication to or from the drive is through an I/O Register that routes the 
+input or output data to or from registers (selected) by a code on signals from 
+the host (CS1FX-, CS3FX-, DA2, DA1, DA0, DIOR- and DIOW-). 
+
+The Command Block Registers are used for sending commands to the drive or 
+posting status from the drive. 
+
+The Control Block Registers are used for drive control and to post alternate 
+status. 
+
+Table 7-1 lists these registers and the addresses that select them. 
+
+Logic conventions are:   A = signal asserted
+                         N = signal negated
+                         x = does not matter which it is
+
+            TABLE 7-1:  I/O PORT FUNCTIONS/SELECTION ADDRESSES 
+ +-------------------------------+-----------------------------------------+
+ |         Addresses             |                 Functions               |
+ |CS1FX-|CS3FX-| DA2 | DA1 | DA0 |    READ (DIOR-)     |   WRITE (DIOW-)   |
+ +------+------+-----+-----+-----+---------------------+-------------------+
+ |                                        Control Block Registers          |
+ +------+------+-----+-----+-----+---------------------+-------------------+
+ |  N   |  N   |  x  |  x  |  x  | Data Bus High Imped | Not used          |
+ |  N   |  A   |  0  |  x  |  X  | Data Bus High Imped | Not used          |
+ |  N   |  A   |  1  |  0  |  x  | Data Bus High Imped | Not used          |
+ |  N   |  A   |  1  |  1  |  0  | Alternate Status    | Device Control    | 
+ |  N   |  A   |  1  |  1  |  1  | Drive Address       | Not used          |
+ +------+------+-----+-----+-----+---------------------+-------------------+
+ |                                        Command Block Registers          |
+ +------+------+-----+-----+-----+---------------------+-------------------+
+ |  A   |  N   |  0  |  0  |  0  | Data                | Data              |
+ |  A   |  N   |  0  |  0  |  1  | Error Register      | Features          |
+ |  A   |  N   |  0  |  1  |  0  | Sector Count        | Sector Count      |
+ |  A   |  N   |  0  |  1  |  1  | Sector Number       | Sector Number     | 
+ |  A   |  N   |  0  |  1  |  1  | * LBA Bits  0- 7    | * LBA Bits  0- 7  |
+ |  A   |  N   |  1  |  0  |  0  | Cylinder Low        | Cylinder Low      |
+ |  A   |  N   |  1  |  0  |  0  | * LBA Bits  8-15    | * LBA Bits  8-15  |
+ |  A   |  N   |  1  |  0  |  1  | Cylinder High       | Cylinder High     | 
+ |  A   |  N   |  1  |  0  |  1  | * LBA Bits 16-23    | * LBA Bits 16-23  |
+ |  A   |  N   |  1  |  1  |  0  | Drive/Head          | Drive/Head        |
+ |  A   |  N   |  1  |  1  |  0  | * LBA Bits 24-27    | * LBA Bits 24-27  |
+ |  A   |  N   |  1  |  1  |  1  | Status              | Command           |
+ |  A   |  A   |  x  |  x  |  x  | Invalid Address     | Invalid Address   |
+ +------+------+-----+-----+-----+---------------------+-------------------+
+                      * Mapping of registers in LBA Mode
+
+7.2.1  Alternate Status Register
+
+This register contains the same information as the Status Register in the 
+command block. The only difference being that reading this register does not 
+imply interrupt acknowledge or clear a pending interrupt. 
+
+         7       6       5       4       3       2       1       0 
+     +-------+-------+-------+-------+-------+-------+-------+-------+
+     |  BSY  | DRDY  |  DWF  |  DSC  |  DRQ  | CORR  |  IDX  |  ERR  | 
+     +-------+-------+-------+-------+-------+-------+-------+-------+
+
+See 7.2.13 for definitions of the bits in this register. 
+
+7.2.2  Command Register 
+
+This register contains the command code being sent to the drive. Command 
+execution begins immediately after this register is written. The executable 
+commands, the command codes, and the necessary parameters for each command are 
+listed in Table 9-1.
+
+7.2.3  Cylinder High Register
+
+This register contains the high order bits of the starting cylinder address 
+for any disk access. At the end of the command, this register is updated to 
+reflect the current cylinder number. The most significant bits of the cylinder 
+address shall be loaded into the cylinder high Register. 
+
+In LBA Mode this register contains Bits 16-23. At the end of the command, this 
+register is updated to reflect the current LBA Bits 16-23.
+
+  NOTE: Prior to the introduction of this standard, only the lower 2 bits of 
+        this register were valid, limiting cylinder address to 10 bits i.e. 
+        1,024 cylinders.
+
+7.2.4  Cylinder Low Register
+
+This register contains the low order 8 bits of the starting cylinder address 
+for any disk access. At the end of the command, this register is updated to 
+reflect the current cylinder number. 
+
+In LBA Mode this register contains Bits 8-15. At the end of the command, this 
+register is updated to reflect the current LBA Bits 8-15.
+
+7.2.5  Data Register
+
+This 16-bit register is used to transfer data blocks between the device data 
+buffer and the host. It is also the register through which sector information 
+is transferred on a Format Track command. Data transfers may be either PIO or 
+DMA. 
+
+7.2.6  Device Control Register
+
+The bits in this register are as follows: 
+
+         7       6       5       4       3       2       1       0 
+     +-------+-------+-------+-------+-------+-------+-------+-------+
+     |   x   |   x   |   x   |   x   |   1   | SRST  |  nIEN |   0   | 
+     +-------+-------+-------+-------+-------+-------+-------+-------+
+
+ - SRST is the host software reset bit. The drive is held reset when this bit 
+   is set. If two disk drives are daisy chained on the interface, this bit 
+   resets both simultaneously. Drive 1 is not required to execute the DASP- 
+   handshake procedure.
+ - nIEN is the enable bit for the drive interrupt to the host. When nIEN=0, 
+   and the drive is selected, INTRQ shall be enabled through a tri-state 
+   buffer. When nIEN=1, or the drive is not selected, the INTRQ signal shall 
+   be in a high impedance state. 
+
+7.2.7  Drive Address Register
+
+This register contains the inverted drive select and head select addresses of 
+the currently selected drive. The bits in this register are as follows: 
+
+         7       6       5       4       3       2       1       0 
+     +-------+-------+-------+-------+-------+-------+-------+-------+
+     |  HiZ  |  nWTG |  nHS3 |  nHS2 |  nHS1 |  nHS0 |  nDS1 |  nDS0 | 
+     +-------+-------+-------+-------+-------+-------+-------+-------+
+
+ - HiZ shall always be in a high impedance state. 
+ - nWTG is the Write Gate bit. When writing to the disk drive is in progress, 
+   nWTG=0.
+ - nHS3 through nHS0 are the one's complement of the binary coded address of 
+   the currently selected head. For example, if nHS3 through nHS0 are 1100b, 
+   respectively, head 3 is selected. nHS3 is the most significant bit. 
+ - nDS1 is the drive select bit for drive 1. When drive 1 is selected and 
+   active, nDS1=0. 
+ - nDS0 is the drive select bit for drive 0. When drive 0 is selected and 
+   active, nDS0=0.
+
+  NOTE: Care should be used when interpreting these bits, as they do not 
+        always represent the expected status of drive operations at the 
+        instant the status was put into this register. This is because of the 
+        use of cacheing, translate mode and the Drive 0/Drive 1 concept with 
+        each drive having its own embedded controller. 
+
+7.2.8  Drive/Head Register
+
+This register contains the drive and head numbers. The contents of this 
+register define the number of heads minus 1, when executing an Initialize 
+Drive Parameters command. 
+
+         7       6       5       4       3       2       1       0 
+     +-------+-------+-------+-------+-------+-------+-------+-------+
+     |   1   |   L   |   1   |  DRV  |  HS3  |  HS2  |  HS1  |  HS0  | 
+     +-------+-------+-------+-------+-------+-------+-------+-------+
+
+ - L is the binary encoded address mode select. When L=0, addressing is by CHS 
+   mode. When L=1, addressing is by LBA mode. 
+ - DRV is the binary encoded drive select number. When DRV=0, Drive 0 is 
+   selected. When DRV=1, Drive 1 is selected.
+ - If L=0, HS3 through HS0 contain the binary coded address of the head to be 
+   selected e.g. if HS3 through HS0 are 0011b, respectively, head 3 will be 
+   selected. HS3 is the most significant bit. At command completion, these 
+   bits are updated to reflect the currently selected head. 
+   If L=1, HS3 through HS0 contain bits 24-27 of the LBA. At command 
+   completion, these bits are updated to reflect the current LBA bits 24-27. 
+
+7.2.9  Error Register 
+
+This register contains status from the last command executed by the drive or a 
+Diagnostic Code. 
+
+At the completion of any command except Execute Drive Diagnostic, the contents 
+of this register are valid when ERR=1 in the Status Register. 
+
+Following a power on, a reset, or completion of an Execute Drive Diagnostic 
+command, this register contains a Diagnostic Code (see Table 9-2). 
+
+         7       6       5       4       3       2       1       0 
+     +-------+-------+-------+-------+-------+-------+-------+-------+
+     | BBK   |  UNC  |  MC   |  IDNF |  MCR  | ABRT  | TK0NF |  AMNF |
+     +-------+-------+-------+-------+-------+-------+-------+-------+
+
+ - BBK (Bad Block Detected) indicates a bad block mark was detected in the 
+   requested sector's ID field. 
+ - UNC (Uncorrectable Data Error) indicates an uncorrectable data error has 
+   been encountered. 
+ - MC (Media Changed) indicates that the removable media has been changed i.e. 
+   there has been a change in the ability to access the media.
+ - IDNF (ID Not Found) indicates the requested sector's ID field could not be 
+   found. 
+ - ABRT (Aborted Command) indicates the requested command has been aborted due 
+   to a drive status error (Not Ready, Write Fault, etc.) or because the 
+   command code is invalid. 
+ - MCR (Media Change Requested) indicates that the release latch on a 
+   removable media drive has been pressed. This means that the user wishes to 
+   remove the media and requires an action of some kind e.g. have software 
+   issue a Media Eject or Door Unlock command. 
+ - TK0NF (Track 0 Not Found) indicates track 0 has not been found during a 
+   Recalibrate command. 
+ - AMNF (Address Mark Not Found) indicates the data address mark has not been 
+   found after finding the correct ID field. 
+
+7.2.10  Features Register
+
+This register is command specific and may be used to enable and disable 
+features of the interface e.g. by the Set Features Command to enable and 
+disable cacheing. 
+
+This register may be ignored by some drives. 
+
+Some hosts, based on definitions prior to the completion of this standard, set 
+values in this register to designate a recommended Write Precompensation 
+Cylinder value. 
+
+7.2.11  Sector Count Register
+
+This register contains the number of sectors of data requested to be 
+transferred on a read or write operation between the host and the drive. If 
+the value in this register is zero, a count of 256 sectors is specified. 
+
+If this register is zero at command completion, the command was successful. If 
+not successfully completed, the register contains the number of sectors which 
+need to be transferred in order to complete the request.
+
+The contents of this register may be defined otherwise on some commands e.g. 
+Initialize Drive Parameters, Format Track or Write Same commands. 
+
+7.2.12  Sector Number Register
+
+This register contains the starting sector number for any disk data access for 
+the subsequent command. The sector number may be from 1 to the maximum number 
+of sectors per track. 
+
+In LBA Mode this register contains Bits 0-7. At the end of the command, this 
+register is updated to reflect the current LBA Bits 0-7.
+
+See the command descriptions for contents of the register at command 
+completion (whether successful or unsuccessful).
+
+7.2.13  Status Register
+
+This register contains the drive status. The contents of this register are 
+updated at the completion of each command. When BSY is cleared, the other bits 
+in this register shall be valid within 400 nsec. If BSY=1, no other bits in 
+this register are valid. If the host reads this register when an interrupt is 
+pending, it is considered to be the interrupt acknowledge. Any pending 
+interrupt is cleared whenever this register is read. 
+
+  NOTE: If Drive 1 is not detected as being present, Drive 0 clears the Drive 
+        1 Status Register to 00h (indicating that the drive is Not Ready).
+
+         7       6       5       4       3       2       1       0 
+     +-------+-------+-------+-------+-------+-------+-------+-------+
+     |  BSY  | DRDY  |  DWF  |  DSC  |  DRQ  | CORR  |  IDX  |  ERR  | 
+     +-------+-------+-------+-------+-------+-------+-------+-------+
+
+  NOTE: Prior to the definition of this standard, DRDY and DSC were unlatched 
+        real time signals. 
+
+ - BSY (Busy) is set whenever the drive has access to the Command Block 
+   Registers. The host should not access the Command Block Register when 
+   BSY=1. When BSY=1, a read of any Command Block Register shall return the 
+   contents of the Status Register. This bit is set by the drive (which may be 
+   able to respond at times when the media cannot be accessed) under the 
+   following circumstances: 
+   a) within 400 nsec after the negation of RESET- or after SRST has been set 
+      in the Device Control Register. Following acceptance of a reset it is 
+      recommended that BSY be set for no longer than 30 seconds by Drive 1 and 
+      no longer than 31 seconds by Drive 0.
+   b) within 400 nsec of a host write of the Command Register with a Read, 
+      Read Long, Read Buffer, Seek, Recalibrate, Initialize Drive Parameters, 
+      Read Verify, Identify Drive, or Execute Drive Diagnostic command. 
+   c) within 5 usecs following transfer of 512 bytes of data during execution 
+      of a Write, Format Track, or Write Buffer command, or 512 bytes of data 
+      and the appropriate number of ECC bytes during the execution of a Write 
+      Long command. 
+ - DRDY (Drive Ready) indicates that the drive is capable of responding to a 
+   command. When there is an error, this bit is not changed until the Status 
+   Register is read by the host, at which time the bit again indicates the 
+   current readiness of the drive. This bit shall be cleared at power on and 
+   remain cleared until the drive is ready to accept a command. 
+ - DWF (Drive Write Fault) indicates the current write fault status. When an 
+   error occurs, this bit shall not be changed until the Status Register is 
+   read by the host, at which time the bit again indicates the current write 
+   fault status. 
+ - DSC (Drive Seek Complete) indicates that the drive heads are settled over a 
+   track. When an error occurs, this bit shall not be changed until the Status 
+   Register is read by the host, at which time the bit again indicates the 
+   current Seek Complete status. 
+ - DRQ (Data Request) indicates that the drive is ready to transfer a word or 
+   byte of data between the host and the drive.
+ - CORR (Corrected Data) indicates that a correctable data error was 
+   encountered and the data has been corrected. This condition does not 
+   terminate a data transfer. 
+ - IDX (Index) is set once per disk revolution. 
+ - ERR (Error) indicates that an error occurred during execution of the 
+   previous command. The bits in the Error Register have additional 
+   information regarding the cause of the error. 
+
+8.  Programming Requirements
+
+8.1  Reset Response 
+
+A reset is accepted within 400 nsec after the negation of RESET- or within 400 
+nsec after SRST has been set in the Device Control Register. 
+
+When the drive is reset by RESET-, Drive 1 shall indicate it is present by 
+asserting DASP- within 400 msec, and DASP- shall remain asserted for 30 
+seconds or until Drive 1 accepts the first command. See also 6.3.4 and 6.3.13.
+
+When the drive is reset by SRST, the drive shall set BSY=1. 
+
+See also 7.2.6.
+
+When a reset is accepted, and with BSY set:
+
+ a) Both drives perform any necessary hardware initialization
+ b) Both drives clear any previously programmed drive parameters 
+ c) Both drives may revert to the default condition
+ d) Both drives load the Command Block Registers with their default values
+ e) If a hardware reset, Drive 0 waits for DASP- to be asserted by Drive 1
+ f) If operational, Drive 1 asserts DASP-
+ g) Drive 0 waits for PDIAG- to be asserted if Drive 1 asserts DASP-
+ h) If operational, Drive 1 clears BSY
+ i) If operational, Drive 1 asserts PDIAG-
+ j) Drive 0 clears BSY
+
+No interrupt is generated when initialization is complete.
+
+The default values for the Command Block Registers if no self-tests are 
+performed or if no errors occurred are: 
+
+      Error         = 01h       Cylinder Low  = 00h 
+      Sector Count  = 01h       Cylinder High = 00h 
+      Sector Number = 01h       Drive/Head    = 00h 
+
+The Error Register shall contain a Diagnostic Code (see Table 9.2) if a self-
+test is performed. 
+
+Following any reset, the host should issue an Initialize Drive Parameters 
+command to ensure the drive is initialized as desired. 
+
+There are three types of reset in ATA. The following is a suggested method of 
+classifying reset actions: 
+
+ - Power On Reset: the drive executes a series of electrical circuitry 
+   diagnostics, spins up the HDA, tests speed and other mechanical 
+   parametrics, and sets default values.
+ - Hardware Reset: the drive executes a series of electrical circuitry 
+   diagnostics, and resets to default values. 
+ - Software Reset: the drive resets the interface circuitry according to the 
+   Set Features requirement (See 9.21)
+
+8.2   Translate Mode 
+
+The cylinder, head and sector geometry of the drive as presented to the host 
+may differ from the actual physical geometry. Translate mode is an optional 
+and device specific means of mapping between the two. 
+
+8.3  Power Conditions
+
+Optional power commands permit the host to modify the behavior of the drive in 
+a manner which reduces the power required to operate. 
+
+                        TABLE 8-1:  POWER CONDITIONS
+             +----------+----+----+----+------------------+-----+
+             |   Mode   |SRST| BSY|DRDY| Interface Active |Media|
+             +----------+----+----+----+------------------+-----+
+             | Sleep    |  * |  x |  x |         *        |  0  |
+             |          |    |    |    |                  |     |
+             | Standby  |  x |  0 |  1 |        Yes       |  0  |
+             |          |    |    |    |                  |     |
+             | Idle     |  x |  0 |  1 |        Yes       |  1  |
+             |          |    |    |    |                  |     |
+             | Active   |  x |  x |  x |        Yes       |  1  |
+             +----------+----+----+----+------------------+-----+
+             |   1 = Active    0 = Inactive        * See 9.23   |
+             +--------------------------------------------------+
+
+The lowest power consumption when the drive is powered on occurs in Sleep 
+mode. When in Sleep mode, the drive requires a reset to be activated (see 
+9.23). The time to respond could be as long as 30 seconds or more. 
+
+In Standby mode the drive interface is capable of accepting commands, but as 
+the media is not immediately accessible, it could take the drive as long as 30 
+seconds or more to respond.
+
+In Idle mode the drive is capable of responding immediately to media access 
+requests. A drive in Idle mode may take longer to complete the execution of a 
+command because it may have to activate some circuitry.
+
+In Active mode the drive is capable of responding immediately to media access 
+requests, and commands complete execution in the shortest possible time.
+
+Ready is not a power condition. A drive may post ready at the interface even 
+though the media may not be accessible.
+
+See specific power-related commands.
+
+8.4  Error Posting 
+
+The errors that are valid for each command are defined in Table 8-1. It is not 
+a requirement that all valid conditions be implemented. See 7.2.9 and 7.2.13 
+for the definition of the Error Register and Status Register bits.
+
+                        TABLE 8-2:  REGISTER CONTENTS
+                          +----------------------------+---------------------+
+                          |       Error Register       |   Status Register   |
+                          |BBK|UNC|IDNF|ABRT|TK0NF|AMNF|DRDY|DWF|DSC|CORR|ERR| 
+ +------------------------+---+---+----+----+-----+----+----+---+---+----+---+
+ | Acknowledge Media Chge |   |   |    |  V |     |    |    |   |   |    |   |
+ | Boot - Post-Boot       |   |   |    |  V |     |    |    |   |   |    |   |
+ | Boot - Pre-Boot        |   |   |    |  V |     |    |    |   |   |    |   |
+ | Check Power Mode       |   |   |    |  V |     |    |  V | V | V |    | V |
+ | Door Lock              |   |   |  V |  V |     |    |  V |   |   |    |   |
+ | Door Unlock            |   |   |    |  V |     |    |    |   |   |    |   |
+ | Execute Drive Diags    |         See 9.7            |    |   |   |    | V |
+ | Format Track           |   |   |  V |  V |     |    |  V | V | V |    | V |
+ | Identify Drive         |   |   |    |  V |     |    |  V | V | V |    | V |
+ | Idle                   |   |   |    |  V |     |    |  V | V | V |    | V |
+ | Idle Immediate         |   |   |    |  V |     |    |  V | V | V |    | V |
+ | Initialize Drive Parms |   |   |    |    |     |    |  V | V | V |    |   |
+ | NOP                    |   |   |    |  V |     |    |    |   |   |    | V |
+ | Read Buffer            |   |   |    |  V |     |    |  V | V | V |    | V |
+ | Read DMA               | V | V |  V |  V |     |  V |  V | V | V |  V | V |
+ | Read Long              | V |   |  V |  V |     |  V |  V | V | V |    | V |
+ | Read Multiple          | V | V |  V |  V |     |  V |  V | V | V |  V | V |
+ | Read Sector(s)         | V | V |  V |  V |     |  V |  V | V | V |  V | V |
+ | Read Verify Sector(s)  | V | V |  V |  V |     |  V |  V | V | V |  V | V |
+ | Recalibrate            |   |   |    |  V |  V  |    |  V | V | V |    | V |
+ | Seek                   |   |   |  V |  V |     |    |  V | V | V |    | V |
+ | Set Features           |   |   |    |  V |     |    |  V | V | V |    | V |
+ | Set Multiple Mode      |   |   |    |  V |     |    |  V | V | V |    | V |
+ | Sleep                  |   |   |    |  V |     |    |  V | V | V |    | V |
+ | Standby                |   |   |    |  V |     |    |  V | V | V |    | V |
+ | Standby Immediate      |   |   |    |  V |     |    |  V | V | V |    | V |
+ | Write Buffer           |   |   |    |  V |     |    |  V | V | V |    | V |
+ | Write DMA              | V |   |  V |  V |     |    |  V | V | V |    | V |
+ | Write Long             | V |   |  V |  V |     |    |  V | V | V |    | V |
+ | Write Multiple         | V |   |  V |  V |     |    |  V | V | V |    | V |
+ | Write Same             | V |   |  V |  V |     |    |  V | V | V |    | V |
+ | Write Sector(s)        | V |   |  V |  V |     |    |  V | V | V |    | V |
+ | Write Verify           | V | V |  V |  V |     | V  |  V | V | V | V  | V |
+ +------------------------+---+---+----+----+-----+----+----+---+---+----+---+
+ | Invalid Command Code   |   |   |    |  V |     |    |  V | V | V |    | V |
+ +------------------------+---+---+----+----+-----+----+----+---+---+----+---+
+ | V = valid on this command                                                 |
+ +---------------------------------------------------------------------------+
+
+9.  Command Descriptions
+
+Commands are issued to the drive by loading the pertinent registers in the 
+command block with the needed parameters, and then writing the command code to 
+the Command Register. 
+
+The manner in which a command is accepted varies. There are three classes 
+(see Table 9-1) of command acceptance, all predicated on the fact that to 
+receive a command, BSY=0:
+
+ - Upon receipt of a Class 1 command, the drive sets BSY within 400 nsec.
+ - Upon receipt of a Class 2 command, the drive sets BSY within 400 nsec, sets 
+   up the sector buffer for a write operation, sets DRQ within 700 usec, and 
+   clears BSY within 400 nsec of setting DRQ.
+ - Upon receipt of a Class 3 command, the drive sets BSY within 400 nsec, sets 
+   up the sector buffer for a write operation, sets DRQ within 20 msec, and 
+   clears BSY within 400 nsec of setting DRQ.
+
+  NOTE: DRQ may be set so quickly on Class 2 and Class 3 that the BSY 
+        transition is too short for BSY=1 to be recognized.
+
+The drive shall implement all mandatory commands as identified by an M, and 
+may implement the optional commands identified by an O, in Table 9-1. V 
+indicates a Vendor Specific command code.
+
+If a new command is issued to a drive which has an uncompleted command 
+(subsequently referred to as Old_Command) in progress, the drive shall 
+immediately respond to the new command (Subsequently referred to as 
+New_Command), even if execution of the Old_Command could have been completed. 
+
+There shall be no indication given to the system as to the status of the 
+Old_Command which was being executed at the time the New_Command was issued. 
+
+            TABLE 9-1:  COMMAND CODES AND PARAMETERS - Part 1 of 2
+                                               +-------+-------------------+
+  +-----+                                      |Command|  Parameters Used  |
+  |Class|                                      | Code  |FR  SC  SN  CY  DH |
+  +-----+----------------------------------+---+-------+---+---+---+---+---+
+  |  1  | Acknowledge Media Chge           | O |  DBh  |   |   |   |   | D |
+  |  1  | Boot - Post-Boot                 | O |  DCh  |   |   |   |   | D |
+  |  1  | Boot - Pre-Boot                  | O |  DDh  |   |   |   |   | D |
+  |  1  | Check Power Mode                 | O |98h E5h|   | y |   |   | D |
+  |  1  | Door Lock                        | O |  DEh  |   |   |   |   | D |
+  |  1  | Door Unlock                      | O |  DFh  |   |   |   |   | D |
+  |  1  | Execute Drive Diagnostic         | M |  90h  |   |   |   |   | D*|
+  |  2  | Format Track                     | M |  50h  | * | y |   | y | y |
+  |  1  | Identify Drive                   | O |  ECh  |   |   |   |   | D |
+  |  1  | Idle                             | O |97h E3h|   | y |   |   | D |
+  |  1  | Idle Immediate                   | O |95h E1h|   |   |   |   | D |
+  |  1  | Initialize Drive Parameters      | M |  91h  |   | y |   |   | y |
+  |  1  | NOP                              | O |  00h  |   |   |   |   | y |
+  |  1  | Read Buffer                      | O |  E4h  |   |   |   |   | D |
+  |  1  | Read DMA (w/retry)               | O |  C8h  |   | y | y | y | y |
+  |  1  | Read DMA (w/o retry)             | O |  C9h  |   | y | y | y | y |
+  |  1  | Read Long (w/retry)              | M |  22   |   | y | y | y | y |
+  |  1  | Read Long (w/o retry)            | M |  23   |   | y | y | y | y |
+  |  1  | Read Multiple                    | O |  C4h  |   | y | y | y | y |
+  |  1  | Read Sector(s) (w/retry)         | M |  20   |   | y | y | y | y |
+  |  1  | Read Sector(s) (w/o retry)       | M |  21   |   | y | y | y | y |
+  |  1  | Read Verify Sector(s) (w/retry)  | M |  40   |   | y | y | y | y |
+  |  1  | Read Verify Sector(s) (w/o retry)| M |  41   |   | y | y | y | y |
+  |  1  | Recalibrate                      | M |  1xh  |   |   |   |   | D |
+  +-----+----------------------------------+---+-------+---+---+---+---+---+
+            TABLE 9-1:  COMMAND CODES AND PARAMETERS - Part 2 of 2
+                                               +-------+-------------------+
+  +-----+                                      |Command|  Parameters Used  |
+  |Class|                                      | Code  |FR  SC  SN  CY  DH |
+  +-----+----------------------------------+---+-------+---+---+---+---+---+
+  |  1  | Seek                             | M |  7xh  |   |   | y | y | y |
+  |  1  | Set Features                     | O |  EFh  | y |   |   |   | D |
+  |  1  | Set Multiple Mode                | O |  C6h  |   | y |   |   | D |
+  |  1  | Sleep                            | O |99h E6h|   |   |   |   | D |
+  |  1  | Standby                          | O |96h E2h|   | y |   |   | D |
+  |  1  | Standby Immediate                | O |94h E0h|   |   |   |   | D |
+  |  2  | Write Buffer                     | O |  E8h  |   |   |   |   | D |
+  |  3  | Write DMA (w/retry)              | O |  CAh  |   | y | y | y | y |
+  |  3  | Write DMA (w/o retry)            | O |  CBh  |   | y | y | y | y |
+  |  2  | Write Long (w/retry)             | M |  32   | * | y | y | y | y |
+  |  2  | Write Long (w/o retry)           | M |  33   | * | y | y | y | y |
+  |  3  | Write Multiple                   | O |  C5h  | * | y | y | y | y |
+  |  3  | Write Same                       | O |  E9h  | y | y | y | y | y |
+  |  2  | Write Sector(s) (w/retry)        | M |  30   | * | y | y | y | y |
+  |  2  | Write Sector(s) (w/o retry)      | M |  31   | * | y | y | y | y |
+  |  3  | Write Verify                     | O |  3Ch  | * | y | y | y | y |
+  |     | Vendor Unique                    | V |  9Ah  |   |   |   |   |   |
+  |     | Vendor Unique                    | V | C0-C3h|   |   |   |   |   |
+  |     | Vendor Unique                    | V |  8xh  |   |   |   |   |   |
+  |     | Vendor Unique                    | V |F0h-FFh|   |   |   |   |   |
+  |     | Reserved: All remaining codes    |   |       |   |   |   |   |   |
+  +-----+----------------------------------+---+-------+---+---+---+---+---+
+  |     | CY = Cylinder Registers         SC = Sector Count Register       |
+  |     | DH = Drive/Head Register        SN = Sector Number Register      |
+  |     | FR = Features Register (see command descriptions for use)        |
+  |     | y - the register contains a valid parameter for this command.    |
+  |     |     For the Drive/Head Register, y means both the drive and      |
+  |     |     head parameters are used.                                    |
+  |     | D - only the drive parameter is valid and not the head parameter.|
+  |     | D* - Addressed to Drive 0 but both drives execute it.            |
+  |     | * - Maintained for compatibility (see 7.2.9)                     |
+  +-----+------------------------------------------------------------------+
+
+9.1  Acknowledge Media Change (Removable)
+
+If the drive is operating in a mode which requires that the operating system 
+acknowledge a media change, this command clears the Media Change Error so that 
+normal operation can resume. If the drive is not operating in such a mode, 
+this command returns an Abort error.
+
+9.2  Boot - Post-Boot (Removable)
+
+This command provides a means to send vendor-specific information that may be 
+required in order to pass diagnostics which are applicable to non-removable 
+disk drives.
+
+9.3  Boot - Pre-Boot (Removable)
+ 
+This command is issued to prepare a removable drive to respond to boot. 
+
+9.4  Check Power Mode
+
+This command checks the power mode. 
+
+If the drive is in, going to, or recovering from the Standby Mode the drive 
+shall set BSY, set the Sector Count Register to 00h, clear BSY, and generate 
+an interrupt. 
+
+If the drive is in the Idle Mode, the drive shall set BSY, set the Sector 
+Count Register to FFh, clear BSY, and generate an interrupt. 
+
+9.5  Door Lock (Removable)
+
+This command locks the door if the drive is Ready and unlocked, otherwise it 
+responds with Not Ready. 
+
+9.6  Door Unlock (Removable)
+
+This command unlocks the door if the drive is Ready and locked, otherwise it 
+responds with Not Ready. 
+
+9.7  Execute Drive Diagnostic
+
+This command shall perform the internal diagnostic tests implemented by the 
+drive. See also 6.3.4 and 6.3.13. The DRV bit is ignored. Both drives, if 
+present, shall execute this command. 
+
+If Drive 1 is present: 
+
+ - Drive 0 waits up to 5 seconds for Drive 1 to assert PDIAG-. 
+ - If Drive 1 has not asserted PDIAG-, indicating a failure, Drive 0 shall 
+   append 80h to its own diagnostic status. 
+ - Both drives shall execute diagnostics. 
+ - If Drive 1 diagnostic failure is detected when Drive 0 status is read, 
+   Drive 1 status is obtained by setting the DRV bit, and reading status. 
+
+If there is no Drive 1 present:
+
+ - Drive 0 posts only its own diagnostic results. 
+ - Drive 0 clears BSY, and generates an interrupt. 
+
+The Diagnostic Code written to the Error Register is a unique 8-bit code as 
+shown in Table 9-2, and not as the single bit flags defined in 7.2.9. 
+
+If Drive 1 fails diagnostics, Drive 0 "ORs" 80h with its own status and loads 
+that code into the Error Register. If Drive 1 passes diagnostics or there is 
+no Drive 1 connected, Drive 0 "ORs" 00h with its own status and loads that 
+code into the Error Register. 
+
+                         TABLE 9-2:  DIAGNOSTIC CODES 
+                 +-------+
+                 | Code  | 
+                 +-------+----------------------------------+
+                 |  01h  | No error detected                |
+                 |  02h  | Formatter device error           |
+                 |  03h  | Sector buffer error              |
+                 |  04h  | ECC circuitry error              |
+                 |  05h  | Controlling microprocessor error |
+                 |  8xh  | Drive 1 failed                   |
+                 +-------+----------------------------------+ 
+
+9.8  Format Track
+
+The implementation of the Format Track command is vendor specific. The actions 
+may be a physical reformatting of a track, initializing the data field 
+contents to some value, or doing nothing. 
+
+The Sector Count Register contains the number of sectors per track. 
+
+The track address is specified in the Cylinder High and Cylinder Low 
+Registers, and the number of sectors is specified in the Sector Count 
+Register. When the command is accepted, the drive sets the DRQ bit and waits 
+for the host to fill the sector buffer. When the sector buffer is full, the 
+drive clears DRQ, sets BSY and begins command execution. 
+
+The contents of the sector buffer shall not be written to the media, and may 
+be either ignored or interpreted as follows: 
+
+     DD15 ---- DD0               DD15 ---- DD0
+    +-------------+             +-------------+--------------------------+
+    | First Sector|             | Last Sector |  Remainder of buffer     |
+    | Descriptor  | : : : : : : | Descriptor  |  filled with zeros       |
+    +-------------+             +-------------+--------------------------+
+
+One 16-bit word represents each sector, the words being contiguous from the 
+start of a sector. Any words remaining in the buffer after the representation 
+of the last sector are filled with zeros. DD15-8 contain the sector number. If 
+an interleave is specified, the words appear in the same sequence as they 
+appear on the track. DD7-0 contain a descriptor value defined as follows: 
+
+     00h - Format sector as good
+     20h - Unassign the alternate location for this sector
+     40h - Assign this sector to an alternate location
+     80h - Format sector as bad
+
+  NOTE: Some users of the ATA drive expect the operating system partition 
+        table to be erased on a Format command. It is recommended that a drive 
+        which does not perform a physical format of the track, write a data 
+        pattern of all zeros to the sectors which have been specified by the 
+        Format Track command. 
+
+  NOTE: It is recommended that implementors resassign data blocks which show 
+        repeated errors. 
+
+9.9  Identify Drive
+
+The Identify Drive command enables the host to receive parameter information 
+from the drive. When the command is issued, the drive sets BSY, stores the 
+required parameter information in the sector buffer, sets DRQ, and generates 
+an interrupt. The host then reads the information out of the sector buffer. 
+The parameter words in the buffer have the arrangement and meanings defined in 
+Table 9-3. All reserved bits or words shall be zero.
+
+ +-------+          TABLE 9-3:  IDENTIFY DRIVE INFORMATION (1)
+ |  Word |
+ +-------+------------------------------------------------------------------+
+ |    0  | General configuration bit-significant information:               |
+ |       |   15  0   reserved for non-magnetic drives                       |
+ |       |   14  1=format speed tolerance gap required                      |
+ |       |   13  1=track offset option available                            |
+ |       |   12  1=data strobe offset option available                      |
+ |       |   11  1=rotational speed tolerance is > 0.5%                     |
+ |       |   10  1=disk transfer rate > 10 Mbs                              |
+ |       |    9  1=disk transfer rate > 5Mbs but <= 10Mbs                   |
+ |       |    8  1=disk transfer rate <= 5Mbs                               |
+ |       |    7  1=removable cartridge drive                                |
+ |       |    6  1=fixed drive                                              |
+ |       |    5  1=spindle motor control option implemented                 |
+ |       |    4  1=head switch time > 15 usec                               |
+ |       |    3  1=not MFM encoded                                          |
+ |       |    2  1=soft sectored                                            |
+ |       |    1  1=hard sectored                                            |
+ |       |    0  0=reserved                                                 |
+ |    1  | Number of cylinders                                              |
+ |    2  |   reserved                                                       |
+ |    3  | Number of heads                                                  |
+ |    4  | Number of unformatted bytes per track                            |
+ |    5  | Number of unformatted bytes per sector                           |
+ |    6  | Number of sectors per track                                      |
+ |  7-9  |   Vendor Unique                                                  |
+ | 10-19 | Serial number (20 ASCII characters, 0000h=not specified)         |
+ |   20  | Buffer type                                                      |
+ |   21  | Buffer size in 512 byte increments (0000h=not specified)         |
+ |   22  | # of ECC bytes avail on Read/Write Long cmds (0000h=not spec'd)  |
+ | 23-26 | Firmware revision (8 ASCII characters, 0000h=not specified)      |
+ | 27-46 | Model number (40 ASCII characters, 0000h=not specified)          |
+ +-------+------------------------------------------------------------------+
+
+ +-------+          TABLE 9-3:  IDENTIFY DRIVE INFORMATION (2)
+ |  Word |
+ +-------+------------------------------------------------------------------+
+ |   47  | 15-8  Vendor Unique                                              |
+ |       |  7-0  00h = Read/Write Multiple commands not implemented         |
+ |       |       xxh = Maximum number of sectors that can be transferred    |
+ |       |             per interrupt on Read and Write Multiple commands    |
+ |   48  | 0000h = cannot perform doubleword I/O    Included for Backwards  |
+ |       | 0001h = can perform doubleword I/O       Compatible VU Use       |
+ |   49  | Capabilities                                                     |
+ |       | 15-10  0=reserved                                                |
+ |       |     9  1=LBA Supported                                           |
+ |       |     8  1=DMA Supported                                           |
+ |       |  7- 0  Vendor Unique                                             |
+ |   50  |   reserved                                                       |
+ |   51  | 15-8  PIO data transfer cycle timing mode                        |
+ |       |  7-0  Vendor Unique                                              |
+ |   52  | 15-8  DMA data transfer cycle timing mode                        |
+ |       |  7-0  Vendor Unique                                              |
+ |   53  | 15-1    reserved                                                 |
+ |       |    0  1=the fields reported in Words 54-58 are valid             |
+ |       |       0=the fields reported in Words 54-58 may be valid          |
+ |   54  | Number of current cylinders                                      |
+ |   55  | Number of current heads                                          |
+ |   56  | Number of current sectors per track                              |
+ | 57-58 | Current capacity in sectors                                      |
+ |   59  | 15-9    reserved                                                 |
+ |       |    8  1 = Multiple Sector Setting is Valid                       |
+ |       |  7-0  xxh = Current setting for number of sectors that can be    |
+ |       |             transferred per interrupt on R/W Multiple commands   |
+ | 60-61 | Total Number of User Addressable Sectors (LBA Mode Only)         |
+ |   62  | 15-8  Single Word DMA Transfer Mode Active                       |
+ |       |  7-0  Single Word DMA Transfer Modes Supported (see 11-3a)       |
+ |   63  | 15-8  Multiword DMA Transfer Mode Active                         |
+ |       |  7-0  Multiword DMA Transfer Modes Supported (see 11-3b)         |
+ | 64-127|   reserved                                                       |
+ |128-159| Vendor Unique                                                    |
+ |160-255|   reserved                                                       |
+ +-------+------------------------------------------------------------------+
+
+The fields described in 9.4.1 through 9.4.5 are not affected by the Initialize 
+Drive Parameters command.
+
+9.9.1  Word 1: Number of cylinders
+
+The number of user-addressable cylinders in the default translation mode.
+
+9.9.2  Word 3: Number of heads
+
+The number of user-addressable heads in the default translation mode.
+
+9.9.3  Word 4: Number of unformatted bytes per track
+
+The number of unformatted bytes per translated track in the default 
+translation mode.
+
+9.9.4  Word 5: Number of unformatted bytes per sector
+
+The number of unformatted bytes per sector in the default translation mode.
+
+9.9.5  Word 6: Number of sectors per track
+
+The number of user-addressable sectors per track in the default translation 
+mode.
+
+9.9.6  Word 10-19: Serial Number
+
+The contents of this field are right justified and padded with spaces (20h). 
+
+9.9.7  Word 20: Buffer Type           
+
+The contents of the field are determined by the manufacturer. 
+
+  0000h = not specified.
+  0001h = a single ported single sector buffer which is not capable of 
+          simultaneous data transfers to or from the host and the disk. 
+  0002h = a dual ported multi-sector buffer capable of simultaneous data 
+          transfers to or from the host and the disk.
+  0003h = a dual ported multi-sector buffer capable of simultaneous transfers 
+          with a read cacheing capability.
+  0004-FFFFh = reserved                           
+
+These codes are typically not used by the operating system, however, they are 
+useful for diagnostic programs which perform initialization routines e.g. a 
+different interleave may be desirable for 0001h vs 0002h or 0003h.
+
+9.9.8  Word 22: ECC bytes Available on Read/Write Long Commands 
+
+If the contents of this field are set to a value other than 4, the only way to 
+use this information is via the Set Features commands.
+
+9.9.9  Word 23-26: Firmware Revision
+
+The contents of this field are left justified and padded with spaces (20h). 
+
+9.9.10  Word 27-46: Model Number
+
+The contents of this field are left justified and padded with spaces (20h). 
+
+9.9.11 Word 51:  PIO data transfer cycle timing mode   
+
+The PIO transfer timing for each ATA device falls into categories which have 
+unique parametric timing specifications. To determine the proper device timing 
+category, compare the Cycle Time specified in Figure 11-1 with the contents of 
+this field. The value returned in Bits 15-8 should fall into one of the 
+categories specified in Figure 11-1, and if it does not, then Mode 0 shall be 
+used to serve as the default timing.
+
+9.9.12 Word 52:  DMA data transfer cycle timing mode
+
+The DMA transfer timing for each ATA device falls into categories which have 
+unique parametric timing specifications. To determine the proper device timing 
+category, compare the Cycle Time specified in Figure 11-3 with the contents of 
+this field. The value returned in Bits 15-8 should fall into one of the 
+categories specified in Figure 11-3, and if it does not, then Mode 0 shall be 
+used to serve as the default timing.
+
+The contents of this word shall be ignored if Words 62 or 63 are supported.
+
+9.9.13 Word 54:  Number of current cylinders
+
+The number of user-addressable cylinders in the current translation mode.
+
+9.9.14 Word 55:  Number of current heads
+
+The number of user-addressable heads in the current translation mode.
+
+9.9.15 Word 56:  Number of current sectors per track
+
+The number of user-addressable sectors per track in the current translation 
+mode.
+
+9.9.16 Word 57-58: Current capacity in sectors
+
+The current capacity in sectors excludes all sectors used for device-specific 
+purposes. The number of sectors of available capacity may be calculated as: 
+
+   (Number of current cylinders 
+    * Number of current heads 
+    * Number of current sectors per track)
+
+
+9.9.17  Word 59: Multiple Sector Setting
+
+If the valid bit is set, then bits 7-0 reflect the number of sectors currently 
+set to transfer on a Read or Write Multiple command.
+
+9.9.18  Word 60-61: Total Number of User Addressable Sectors
+
+If the drive supports LBA Mode, these words reflect the total number of user 
+addressable sectors. This value does not depend on the current drive geometry. 
+If the drive does not support LBA mode, these words shall be set to 0. 
+
+9.9.19  Word 62: Single Word DMA Transfer
+
+The low order byte identifies by bit all of the Modes which are supported e.g. 
+if Mode 0 is supported, bit 0 is set. The high order byte contains a single 
+bit set to indicate which mode is active.
+
+9.9.20  Word 63: Multiword DMA Transfer
+
+The low order byte identifies by bit all of the Modes which are supported e.g. 
+if Mode 0 is supported, bit 0 is set. The high order byte contains a single 
+bit set to indicate which mode is active. 
+
+9.10  Idle
+
+This command causes the drive to set BSY, enter the Idle Mode, clear BSY, and 
+generate an interrupt. The interrupt is generated even though the drive may 
+not have fully transitioned to Idle Mode. 
+
+If the drive is already spinning, the spinup sequence is not executed. 
+
+If the Sector Count Register is non-zero then the automatic power down 
+sequence shall be enabled and the timer begins counting down immediately. If 
+the Sector Count Register is zero then the automatic power down sequence shall 
+be disabled.
+
+9.11  Idle Immediate
+
+This command causes the drive to set BSY, enter the Idle Mode, clear BSY, and 
+generate an interrupt. The interrupt is generated even though the drive may 
+not have fully transitioned to Idle Mode. 
+
+9.12  Initialize Drive Parameters
+
+This command enables the host to set the number of sectors per track and the 
+number of heads minus 1, per cylinder. Upon receipt of the command, the drive 
+sets BSY, saves the parameters, clears BSY, and generates an interrupt. 
+
+The only two register values used by this command are the Sector Count 
+Register which specifies the number of sectors per track, and the Drive/Head 
+Register which specifies the number of heads minus 1. The DRV bit designates 
+these values to Drive 0 or Drive 1, as appropriate. 
+
+The sector count and head values are not checked for validity by this command. 
+If they are invalid, no error will be posted until an illegal access is made 
+by some other command. 
+
+9.13  NOP
+
+This command enables a host which can only perform 16-bit register accesses to 
+check drive status. The drive shall respond as it does to an unrecognized 
+command by setting Abort in the Error Register, Error in the Status Register, 
+clearing Busy in the Status Register, and asserting INTRQ. 
+
+NOTE: When a 16-bit host writes to the Drive Head Register, one byte contains 
+      the Command Register, so the drive sees a new command when the intended 
+      purpose is only to select a drive. Both drives may be Busy but not 
+      necessarily Ready i.e. Drive 0 may be ready, but not drive 1. To check 
+      this possibility a typical sequence for an 8-bit host would be:
+
+       a. Read the Status Register (wait until Busy False)
+       b. Select the drive (write to the Drive Head Register)
+       c. Read the Status Register (wait until Busy False and Ready True)
+       d. Send the command (write to the Command Register). 
+
+      As a 16-bit host executes 2 and 4 simultaneously, a problem occurs if 
+      the drive being selected is Not Ready at the time the command is issued. 
+
+9.14  Read Buffer
+
+The Read Buffer command enables the host to read the current contents of the 
+drive's sector buffer. When this command is issued, the drive sets BSY, sets 
+up the sector buffer for a read operation, sets DRQ, clears BSY, and generates 
+an interrupt. The host then reads up to 512 bytes of data from the buffer. 
+
+The Read Buffer and Write Buffer commands shall be synchronized such that 
+sequential Write Buffer and Read Buffer commands access the same 512 bytes 
+within the buffer. 
+
+9.15  Read DMA
+
+This command executes in a similar manner to the Read Sectors command except 
+for the following:
+
+ - the host initializes a slave-DMA channel prior to issuing the command
+ - data transfers are qualified by DMARQ and are performed by the slave-DMA 
+   channel 
+ - the drive issues only one interrupt per command to indicate that data 
+   transfer has terminated and status is available.
+
+Any unrecoverable error encountered during execution of a Read DMA command 
+results in the termination of data transfer at the sector where the error was 
+detected. The sector in error is not transferred. The drive generates an 
+interrupt to indicate that data transfer has terminated and status is 
+available. The error posting is the same as that of the Read Sectors command. 
+
+9.16  Read Long
+
+The Read Long command performs similarly to the Read Sectors command except 
+that it returns the data and the ECC bytes contained in the data field of the 
+desired sector. During a Read Long command, the drive does not check the ECC 
+bytes to determine if there has been a data error. Only single sector read 
+long operations are supported. 
+
+The transfer of the ECC bytes shall be 8-bits wide.
+
+9.17  Read Multiple Command
+
+The Read Multiple command performs similarly to the Read Sectors command. 
+Interrupts are not generated on every sector, but on the transfer of a block 
+which contains the number of sectors defined by a Set Multiple command. 
+
+Command execution is identical to the Read Sectors operation except that the 
+number of sectors defined by a Set Multiple command are transferred without 
+intervening interrupts. DRQ qualification of the transfer is required only at 
+the start of the data block, not on each sector. 
+
+The block count of sectors to be transferred without intervening interrupts is 
+programmed by the Set Multiple Mode command, which shall be executed prior to 
+the Read Multiple command. 
+
+When the Read Multiple command is issued, the Sector Count Register contains 
+the number of sectors (not the number of blocks or the block count) requested. 
+
+If the number of requested sectors is not evenly divisible by the block count, 
+as many full blocks as possible are transferred, followed by a final, partial 
+block transfer. The partial block transfer shall be for n sectors, where 
+
+          n = Remainder (Sector Count / Block Count) 
+
+If the Read Multiple command is attempted before the Set Multiple Mode command 
+has been executed or when Read Multiple commands are disabled, the Read 
+Multiple operation shall be rejected with an Aborted Command error. 
+
+Disk errors encountered during Read Multiple commands are posted at the 
+beginning of the block or partial block transfer, but DRQ is still set and the 
+data transfer shall take place as it normally would, including transfer of 
+corrupted data, if any. 
+
+The contents of the Command Block Registers following the transfer of a data 
+block which had a sector in error are undefined. The host should retry the 
+transfer as individual requests to obtain valid error information.
+
+Subsequent blocks or partial blocks are transferred only if the error was a 
+correctable data error. All other errors cause the command to stop after 
+transfer of the block which contained the error. Interrupts are generated when 
+DRQ is set at the beginning of each block or partial block. 
+
+9.18  Read Sector(s)
+
+This command reads from 1 to 256 sectors as specified in the Sector Count 
+register. A sector count of 0 requests 256 sectors. The transfer begins at the 
+sector specified in the Sector Number Register. See 10.1 for the DRQ, IRQ and 
+BSY protocol on data transfers.
+
+If the drive is not already on the desired track, an implied seek is 
+performed. Once at the desired track, the drive searches for the appropriate 
+ID field. 
+
+If retries are disabled and two index pulses have occurred without error free 
+reading of the requested ID, an ID Not Found error is posted. 
+
+If retries are enabled, up to a vendor specific number of attempts may be made 
+to read the requested ID before posting an error. 
+
+If the ID is read correctly, the data address mark shall be recognized within 
+a specified number of bytes, or the Address Mark Not Found error is posted. 
+
+DRQ is always set prior to data transfer regardless of the presence or absence 
+of an error condition. 
+
+At command completion, the Command Block Registers contain the cylinder, head, 
+and sector number of the last sector read. 
+
+If an error occurs, the read terminates at the sector where the error 
+occurred. The Command Block Registers contain the cylinder, head, and sector 
+number of the sector where the error occurred. 
+
+The flawed data is pending in the sector buffer. 
+
+9.19  Read Verify Sector(s)
+
+This command is identical to the Read Sectors command, except that DRQ is 
+never set, and no data is transferred to the host. See 10.3 for protocol. When 
+the command is accepted, the drive sets BSY. 
+
+When the requested sectors have been verified, the drive clears BSY and 
+generates an interrupt. Upon command completion, the Command Block Registers 
+contain the cylinder, head, and sector number of the last sector verified. 
+
+If an error occurs, the verify terminates at the sector where the error 
+occurs. The Command Block Registers contain the cylinder, head, and sector 
+number of the sector where the error occurred. The Sector Count Register shall 
+contain the number of sectors not yet verified. 
+
+9.20  Recalibrate
+
+This command moves the read/write heads from anywhere on the disk to cylinder 
+0. Upon receipt of the command, the drive sets BSY and issues a seek to 
+cylinder zero. The drive then waits for the seek to complete before updating 
+status, clearing BSY and generating an interrupt. 
+
+If the drive cannot reach cylinder 0, a Track Not Found error is posted.
+
+9.21  Seek
+
+This command initiates a seek to the track and selects the head specified in 
+the command block. The drive need not be formatted for a seek to execute 
+properly. See 10.3 for protocol. The drive shall not set DSC=1 until the 
+action of seeking has completed. The drive may return the interrupt before the 
+seek is completed. 
+
+If another command is issued to the drive while a seek is being executed, the 
+drive sets BSY=1, waits for the seek to complete, and then begins execution of 
+the command. 
+
+9.22  Set Features
+
+This command is used by the host to establish the following parameters which 
+affect the execution of certain drive features as shown in Table 9-4.
+
+                 TABLE 9-4:  SET FEATURE REGISTER DEFINITIONS
+    +-----+---------------------------------------------------------------+
+    | 01h | Enable 8-bit data transfers (see 6.3.5)                       |
+    | 02h | Enable Write Cache *                                          |
+    | 03h | Set Transfer Mode based on value in Sector Count Register     |
+    | 33h | Disable Retry *                                               |
+    | 44h | Vendor unique length of ECC on Read Long/Write Long commands  |
+    | 54h | Set cache segments to Sector Count Register value *           |
+    | 55h | Disable read look-ahead feature                               |
+    | 66h | Disable reverting to power on defaults (see 9.22)             |
+    | 77h | Disable ECC *                                                 |
+    | 81h | Disable 8-bit data transfers (see 6.3.5)                      |
+    | 82h | Disable Write Cache *                                         |
+    | 88h | Enable ECC *                                                  |
+    | 99h | Enable Retries *                                              |
+    | AAh | Enable read look-ahead feature                                |
+    | ABh | Set maximum prefetch using Sector Count Register value *      |
+    | BBh | 4 bytes of ECC apply on Read Long/Write Long commands         |
+    | CCh | Enable reverting to power on defaults (see 9.22)              |
+    +-----+---------------------------------------------------------------+
+            * These commands are Vendor-specified
+
+See 10.3 for protocol. If the value in the register is not supported or is 
+invalid, the drive posts an Aborted Command error. 
+
+At power on, or after a hardware reset, the default mode is the same as that 
+represented by values greater than 80h. A setting of 66h allows settings of 
+greater than 80h which may have been modified since power on to remain at the 
+same setting after a software reset. 
+
+A host can choose the transfer mechanism by Set Transfer Mode and specifying a 
+value in the Sector Count Register. The upper 5 bits define the type of 
+transfer and the low order 3 bits encode the mode value. 
+
+   Block Transfer (Default)    00000  000
+   Single Word DMA Mode x      00010  0xx
+   Multiword DMA Mode 0        00100  000
+
+See vendor specification for the default mode of the commands which are 
+vendor-specified.
+
+9.23  Set Multiple Mode
+
+This command enables the drive to perform Read and Write Multiple operations 
+and establishes the block count for these commands. See 10.3 for protocol. 
+
+The Sector Count Register is loaded with the number of sectors per block. 
+Drives shall support block sizes of 2, 4, 8, and 16 sectors, if their buffer 
+size is at least 8,192 bytes, and may also support other block sizes. Upon 
+receipt of the command, the drive sets BSY=1 and checks the Sector Count 
+Register. 
+
+If the Sector Count Register contains a valid value and the block count is 
+supported, the value is loaded for all subsequent Read Multiple and Write 
+Multiple commands and execution of those commands is enabled. If a block count 
+is not supported, an Aborted Command error is posted, and Read Multiple and 
+Write Multiple commands are disabled. 
+
+If the Sector Count Register contains 0 when the command is issued, Read and 
+Write Multiple commands are disabled. 
+
+At power on, or after a hardware reset, the default mode is Read and Write 
+Multiple disabled. If Disable Default has been set in the Features Register 
+then the mode remains the same as that last established prior to a software 
+reset, otherwise it reverts to the default of disabled.
+
+9.24  Sleep
+
+This command is the only way to cause the drive to enter Sleep Mode. The drive 
+is spun down, and when it is stopped, BSY is cleared, an interrupt is 
+generated, and the interface becomes inactive. 
+
+The only way to recover from Sleep mode is with a software reset or a hardware 
+reset. 
+
+  NOTE: The use of hardware reset to recover from Sleep mode may be 
+        incompatible with continued operation of the host system. 
+
+A drive shall not power on in Sleep Mode nor remain in Sleep Mode following a 
+reset sequence. If the drive is already spun down, the spin down sequence is 
+not executed. 
+
+9.25  Standby
+
+This command causes the drive to enter the Standby Mode. See 10.3 for 
+protocol. The drive may return the interrupt before the transition to Standby 
+Mode is completed. 
+
+If the drive is already spun down, the spin down sequence is not executed. 
+
+If the Sector Count Register is non-zero then the automatic power down 
+sequence shall be enabled and the timer will begin counting down when the 
+drive returns to Idle mode. If the Sector Count Register is zero then the 
+automatic power down sequence shall be disabled.
+
+9.26  Standby Immediate
+
+This command causes the drive to enter the Standby Mode. See 10.3 for 
+protocol. The drive may return the interrupt before the transition to Standby 
+Mode is completed. 
+
+If the drive is already spun down, the spin down sequence is not executed. 
+
+9.27  Write Buffer
+
+This command enables the host to overwrite the contents of the drive's sector 
+buffer with any data pattern desired. See 10.2 for protocol.
+
+The Read Buffer and Write Buffer commands shall be synchronized within the 
+drive such that sequential Write Buffer and Read Buffer commands access the 
+same 512 bytes within the buffer. 
+
+9.28  Write DMA
+
+This command executes in a similar manner to Write Sectors except for the 
+following:
+
+ - the host initializes a slave-DMA channel prior to issuing the command 
+ - data transfers are qualified by DMARQ and are performed by the slave-DMA 
+   channel 
+ - the drive issues only one interrupt per command to indicate that data 
+   transfer has terminated and status is available. 
+
+Any error encountered during Write DMA execution results in the termination of 
+data transfer. The drive issues an interrupt to indicate that data transfer 
+has terminated and status is available in the Error Register. The error 
+posting is the same as that of the Write Sectors command. 
+
+9.29  Write Long
+
+This command is similar to the Write Sectors command except that it writes the 
+data and the ECC bytes directly from the sector buffer; the drive does not 
+generate the ECC bytes itself. Only single sector Write Long operations are 
+supported. 
+
+The transfer of the ECC bytes shall be 8-bits wide.
+
+9.30  Write Multiple Command
+
+This command is similar to the Write Sectors command. The drive sets BSY 
+within 400 nsec of accepting the command, and interrupts are not presented on 
+each sector but on the transfer of a block which contains the number of 
+sectors defined by Set Multiple. 
+
+Command execution is identical to the Write Sectors operation except that the 
+number of sectors defined by the Set Multiple command are transferred without 
+intervening interrupts. DRQ qualification of the transfer is required only at 
+the start of the data block, not on each sector. 
+
+The block count of sectors to be transferred without intervening interrupts is 
+programmed by the Set Multiple Mode command, which shall be executed prior to 
+the Read Multiple command. 
+
+When the Write Multiple command is issued, the Sector Count Register contains 
+the number of sectors (not the number of blocks or the block count) requested. 
+
+If the number of requested sectors is not evenly divisible by the block count, 
+as many full blocks as possible are transferred, followed by a final, partial 
+block transfer. The partial block transfer is for n sectors, where 
+
+          n = Remainder (Sector Count / Block Count) 
+
+If the Write Multiple command is attempted before the Set Multiple Mode 
+command has been executed or when Write Multiple commands are disabled, the 
+Write Multiple operation shall be rejected with an aborted command error. 
+
+Disk errors encountered during Write Multiple commands are posted after the 
+attempted disk write of the block or partial block transferred. The Write 
+command ends with the sector in error, even if it was in the middle of a 
+block. Subsequent blocks are not transferred in the event of an error. 
+Interrupts are generated when DRQ is set at the beginning of each block or 
+partial block. 
+
+The contents of the Command Block Registers following the transfer of a data 
+block which had a sector in error are undefined. The host should retry the 
+transfer as individual requests to obtain valid error information.
+
+9.31  Write Same
+
+This command executes in a similar manner to Write Sectors except that only 
+one sector of data is transferred. The contents of the sector are written to 
+the medium one or more times.
+
+NOTE: The Write Same command allows for initialization of part or all of the 
+medium to the specified data with a single command. 
+
+If the Features Register is 22h, the drive shall write that part of the medium 
+specified by the sector count, sector number, cylinder and drive/head 
+registers. If the Features Register contains DDh, the drive shall initialize 
+all the user accessible medium. If the register contains a value other than 
+22h or DDh, the command shall be rejected with an aborted command error. 
+
+The drive issues an interrupt to indicate that the command is complete. Any 
+error encountered during execution results in the termination of the write 
+operation. Status is available in the Error Register if an error occurs. The 
+error posting is the same as that of the Write Sectors command. 
+
+9.32  Write Sector(s)
+
+This command writes from 1 to 256 sectors as specified in the Sector Count 
+Register (a sector count of zero requests 256 sectors), beginning at the 
+specified sector. See 10.1 for the DRQ, IRQ and BSY protocol on data 
+transfers.
+
+If the drive is not already on the desired track, an implied seek is 
+performed. Once at the desired track, the drive searches for the appropriate 
+ID field. 
+
+If retries are disabled and two index pulses have occurred without error free 
+reading of the requested ID, an ID Not Found error is posted. 
+
+If retries are enabled, up to a vendor specific number of attempts may be made 
+to read the requested ID before posting an error. 
+
+If the ID is read correctly, the data loaded in the buffer is written to the 
+data field of the sector, followed by the ECC bytes. Upon command completion, 
+the Command Block Registers contain the cylinder, head, and sector number of 
+the last sector written. 
+
+If an error occurs during a write of more than one sector, writing terminates 
+at the sector where the error occurs. The Command Block Registers contain the 
+cylinder, head, and sector number of the sector where the error occurred. The 
+host may then read the command block to determine what error has occurred, and 
+on which sector. 
+
+9.33  Write Verify
+
+This command is similar to the Write Sectors command, except that each sector 
+is verified immediately after being written. The verify operation is a read 
+without transfer and a check for data errors. Any errors encountered during 
+the verify operation are posted. Multiple sector Write Verify commands write 
+all the requested sectors and then verify all the requested sectors before 
+generating the final interrupt.
+
+10. Protocol Overview
+
+Commands can be grouped into different classes according to the protocols 
+followed for command execution. The command classes with their associated 
+protocols are defined below.
+
+For all commands, the host first checks if BSY=1, and should proceed no 
+further unless and until BSY=0. For most commands, the host will also wait for 
+DRDY=1 before proceeding. Those commands shown with DRDY=x can be executed 
+when DRDY=0. 
+
+Data transfers may be accomplished in more ways than are described below, but 
+these sequences should work with all known implementations of ATA drives. 
+
+10.1  PIO Data In Commands
+
+This class includes:
+
+ - Identify Drive
+ - Read Buffer
+ - Read Long
+ - Read Sector(s)
+
+Execution includes the transfer of one or more 512 byte (>512 bytes on Read 
+Long) sectors of data from the drive to the host. 
+
+ a) The host writes any required parameters to the Features, Sector Count, 
+    Sector Number, Cylinder and Drive/Head registers.
+ b) The host writes the command code to the Command Register.
+ c) The drive sets BSY and prepares for data transfer.
+ d) When a sector of data is available, the drive sets DRQ and clears BSY 
+    prior to asserting INTRQ.
+ e) After detecting INTRQ, the host reads the Status Register, then reads one 
+    sector of data via the Data Register. In response to the Status Register 
+    being read, the drive negates INTRQ. 
+ f) The drive clears DRQ. If transfer of another sector is required, the drive 
+    also sets BSY and the above sequence is repeated from d).
+
+10.1.1  PIO Read Command
+
+ +- a) -+-- b) -+        +- e) -+--------+       +- e) -+--------+ 
+ |Setup | Issue |        | Read |Transfer|       | Read |Transfer| 
+ |      |Command|        |Status|  Data  |:::::::|Status|  Data  | 
+ +------+-------+        +------+--------+       +------+--------+ 
+ |BSY=0 |       |BSY=1   |BSY=0 |        |BSY=1  |BSY=0 |        |BSY=1
+        |DRDY=1          |      |        |       |      |        |
+                         |DRQ=1 |        |DRQ=0  |DRQ=1 |        |DRQ=0
+                         |Assert|Negate  |       |Assert|Negate
+                          INTRQ  INTRQ            INTRQ  INTRQ 
+
+If Error Status is presented, the drive is prepared to transfer data, and it 
+is at the host's discretion that the data is transferred. 
+
+10.1.2  PIO Read Aborted Command
+
+ +- a) -+-- b) -+        +- e) -+
+ |Setup | Issue |        | Read |
+ |      |Command|        |Status|
+ +------+-------+        +------+
+ |BSY=0 |       |BSY=1   |BSY=0 |      
+        |DRDY=1          |      |
+                         |DRQ=1 |DRQ=0
+                         |Assert|Negate
+                          INTRQ  INTRQ
+
+Although DRQ=1, there is no data to be transferred under this condition.
+
+10.2  PIO Data Out Commands
+
+This class includes:
+
+ - Format 
+ - Write Buffer
+ - Write Long
+ - Write Sector(s)
+
+Execution includes the transfer of one or more 512 byte (>512 bytes on Write 
+Long) sectors of data from the drive to the host. 
+
+ a) The host writes any required parameters to the Features, Sector Count, 
+    Sector Number, Cylinder and Drive/Head registers.
+ b) The host writes the command code to the Command Register.
+ c) The drive sets DRQ when it is ready to accept the first sector of data.
+ d) The host writes one sector of data via the Data Register.
+ e) The drive clears DRQ and sets BSY.
+ f) When the drive has completed processing of the sector, it clears BSY and 
+    asserts INTRQ. If transfer of another sector is required, the drive also 
+    sets DRQ.
+ g) After detecting INTRQ, the host reads the Status Register.
+ h) The drive clears the interrupt.
+ i) If transfer of another sector is required, the above sequence is repeated 
+    from d).
+
+10.2.1  PIO Write Command
+
+ +- a) -+-- b) -+      +--------+      +- e) -+--------+       +- e) -+
+ |Setup | Issue |      |Transfer|      | Read |Transfer|       | Read |
+ |      |Command|      |  Data  |      |Status|  Data  |:::::::|Status|
+ +------+-------+      +--------+      +------+--------+       +------+
+ |BSY=0 |       |BSY=1 |BSY=0   |BSY=1 |BSY=0 |        |BSY=1  |BSY=0 |
+        |DRDY=1        |        |      |      |        |       |      |
+                       |DRQ=1   |DRQ=0 |DRQ=1 |        |DRQ=0  |      |
+                       |        |      |Assert|Negate  |       |Assert|Negate
+                                        INTRQ  INTRQ            INTRQ  INTRQ 
+
+10.2.2  PIO Write Aborted Command
+
+ +- a) -+-- b) -+       +- e) -+
+ |Setup | Issue |       | Read |
+ |      |Command|       |Status|
+ +------+-------+       +------+
+ |BSY=0 |       |BSY=1  |BSY=0 |
+        |DRDY=1         |      |
+        |               |Assert|Negate
+                         INTRQ  INTRQ 
+
+10.3  Non-Data Commands
+
+This class includes:
+
+ - Execute Drive Diagnostic (DRDY=x)
+ - Idle
+ - Initialize Drive Parameters (DRDY=x)
+ - Read Power Mode
+ - Read Verify Sector(s)
+ - Recalibrate
+ - Seek
+ - Set Features 
+ - Set Multiple Mode
+ - Standby
+
+Execution of these commands involves no data transfer.
+
+ a) The host writes any required parameters to the Features, Sector Count, 
+    Sector Number, Cylinder and Drive/Head registers.
+ b) The host writes the command code to the Command Register.
+ c) The drive sets BSY. 
+ d) When the drive has completed processing, it clears BSY and asserts INTRQ. 
+ g) The host reads the Status Register.
+ h) The drive negates INTRQ.
+
+10.4  Miscellaneous Commands
+
+This class includes:
+
+ - Read Multiple
+ - Sleep
+ - Write Multiple
+ - Write Same
+
+The protocol for these commands is contained in the individual command 
+descriptions.
+
+10.5  DMA Data Transfer Commands (Optional)
+
+This class comprises:
+
+ - Read DMA
+ - Write DMA
+
+Data transfers using DMA commands differ in two ways from PIO transfers:
+
+ - data transfers are performed using the slave-DMA channel 
+ - no intermediate sector interrupts are issued on multi-sector commands 
+
+Initiation of the DMA transfer commands is identical to the Read Sector or 
+Write Sector commands except that the host initializes the slave-DMA channel 
+prior to issuing the command.
+
+The interrupt handler for DMA transfers is different in that:
+
+ - no intermediate sector interrupts are issued on multi-sector commands
+ - the host resets the DMA channel prior to reading status from the drive.
+
+The DMA protocol allows high performance multi-tasking operating systems to 
+eliminate processor overhead associated with PIO transfers. 
+
+ a) Command Phase
+    1) Host initializes the slave-DMA channel
+    2) Host updates the Command Block Registers
+    3) Host writes command code to the Command Register
+ b) Data Phase - the register contents are not valid during a DMA Data Phase.
+    1) The slave-DMA channel qualifies data transfers to and from the drive 
+       with DMARQ
+ c) Status Phase
+    1) Drive generates the interrupt to the host
+    2) Host resets the slave-DMA channel
+    3) Host reads the Status Register and Error Register
+
+10.5.1  Normal DMA Transfer
+
+ +--------------+-------+      +---------------------+  +---------+------+
+ |Initialize DMA|Command|      |  DMA Data Transfer  |  |Reset DMA|Status|
+ +--------------+-------+      +---------------------+  +---------+------+
+ |BSY=0                 |BSY=1 |BSY=x                   |BSY=1    |BSY=0
+                               |DRQ=x                   |nIEN=0
+
+10.5.2  Aborted DMA Transfer
+
+ +--------------+-------+      +-------------+  +---------+------+
+ |Initialize DMA|Command|      |    DMA Data |  |Reset DMA|Status|
+ +--------------+-------+      +-------------+  +---------+------+
+ |BSY=0                 |BSY=1 |BSY=x           |BSY=1    |BSY=0
+                               |DRQ=1           |nIEN=0
+
+10.5.3  Aborted DMA Command
+
+ +--------------+-------+      +---------+------+
+ |Initialize DMA|Command|      |Reset DMA|Status|
+ +--------------+-------+      +---------+------+
+ |BSY=0                 |BSY=1 |BSY=1    |BSY=0
+                               |nIEN=0
+
+11.  Timing
+
+11.1  Deskewing
+
+The host shall provide cable deskewing for all signals originating from the 
+controller. The drive shall provide cable deskewing for all signals 
+originating at the host. 
+
+11.2  Symbols
+
+Certain symbols are used in the timing diagrams. These symbols and their 
+respective definitions are listed below.
+
+ / or \    -  signal transition (asserted or negated) *
+ < or >    -  data transition (asserted or negated)
+ XXXXXX    -  undefined but not necessarily released
+ .  .  .   -  the "other" condition if a signal is shown with no change
+   #n      -  used to number the sequence in which events occur e.g. #a, #b
+   _ _ __
+__/_ _/    -  a degree of uncertainty as to when a signal may be asserted
+
+__ _ _
+  \_ _\__  -  a degree of uncertainty as to when a signal may be negated 
+
+ * All signals are shown with the Asserted condition facing to the top of 
+   the page. The negated condition is shown towards the bottom of the page 
+   relative to the asserted condition. 
+
+11.3  Terms
+
+The interface uses a mixture of negative and positive signals for control and 
+data. The terms asserted and negated are used for consistency and are 
+independent of electrical characteristics. 
+
+In all timing diagrams, the lower line indicates negated, and the upper line 
+indicates asserted e.g. the following illustrates the representation of a 
+signal named TEST going from negated to asserted and back to negated, based on 
+the polarity of the signal. 
+
+                              Assert          Negate
+                                   |          | 
+         Bit Setting=1             |__________|
+         Bit Setting=0  TEST  _____/          \_______ 
+ 
+                              Assert          Negate
+                                   |          | 
+         Bit Setting=0             |__________|
+         Bit Setting=1  TEST- _____/          \_______ 
+
+11.4  Data Transfers
+
+Figure 11-1 defines the relationships between the interface signals for both 
+16-bit and 8-bit data transfers. 
+
+                              |<------------ t0 -------------------->|
+                        __________________________________________   |
+ Address Valid *1 ...../                                          \________
+                       |<-t1->|                            ->| t9 |<-
+                     ->|t7|<- |<----------- t2 ------------->|  ->|t8|<-
+                       |  |   |______________________________|    |  |_____
+ DIOR-/DIOW-      ____________/                              \_______/
+                       |  |   |_ _ _ _ _ _ _ _ _ _ _____________     |
+ Write Data Valid *2__________/_ _ _ _ _ _ _ _ _ _/             \__________
+                       |  |   |                   |<--t3---->|  |  
+                       |  |   |                            ->|t4|<-  |
+                       |  |   |_ _ _ _ _ _ _ _ _ _ _ ___________     |
+ Read Data Valid  *2__________/_ _ _ _ _ _ _ _ _ _ _/        |  \__________
+                       |  |   |                     |<--t5-->|  |    |
+                       |  |   |                            ->|t6|<-  | 
+                       |  |   |                              |  |    |
+                       |  |__________________________________________|
+ IOCS16-          ________/                                          \_____
+
+        *1  Drive Address consists of signals CS1FX-, CS3FX- and DA2-0 
+        *2  Data consists of DD0-15 (16-bit) or DD0-7 (8-bit)
+
+      +------------------------------------------+-------+-------+-------+
+      | PIO                                      | Mode 0| Mode 1| Mode 2|
+      | Timing Parameters                        |  nsec |  nsec |  nsec |
+ +----+------------------------------------------+-------+-------+-------+
+ | t0 | Cycle Time                         (Min) |  600  |  383  |  240  |
+ | t1 | Address Valid to DIOR-/DIOW- Setup (Min) |   70  |   50  |   30  |
+ | t2 | DIOR-/DIOW-      16-bit            (Min) |  165  |  125  |  100  |
+ |    |   Pulse Width     8-bit            (Min) |  290  |  290  |  290  |
+ | t3 | DIOW- Data Setup                   (Min) |   60  |   45  |   30  |
+ | t4 | DIOW- Data Hold                    (Min) |   30  |   20  |   15  |
+ | t5 | DIOR- Data Setup                   (Min) |   50  |   35  |   20  |
+ | t6 | DIOR- Data Hold                    (Min) |    5  |    5  |    5  |
+ | t7 | Addr Valid to IOCS16- Assertion    (Max) |   90  |   50  |   40  |
+ | t8 | Addr Valid to IOCS16- Negation     (Max) |   60  |   45  |   30  |
+ | t9 | DIOR-/DIOW- to Address Valid Hold  (Min) |   20  |   15  |   10  |
+ +----+------------------------------------------+-------+-------+-------+
+
+                 FIGURE 11-1:  PIO DATA TRANSFER TO/FROM DRIVE 
+
+                        ___________________________________
+ DIOR-/DIOW- __________/                                   \______________
+                       | 
+                       |<- tA ->|<---    tB    ---->|
+             ___________________|                   |_____________________
+ IORDY                          \___________________/
+
+ Label               Description                          Min  Max  Units
+
+ tA  IORDY  Setup time                                     -     35 nsecs 
+ tB  IORDY  Pulse Width                                    -  1,250 nsecs 
+
+  WARNING: The use of IORDY for data transfers is a system integration issue 
+           which requires control of both ends of the cable.
+
+                  FIGURE 11-2:  IORDY TIMING REQUIREMENTS
+
+ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+                    |<----------------------- t0 ----------------------->|  
+                 ____________                                         _______
+ DMARQ       ___/            \_______________________________________/   |
+                    |<- tC ->|                                           |   
+                    |______________________________________________      |___ 
+ DMACK-      _______/                                              \_____/  
+                    |<--- tI --->|_________________|<----- tJ -----|     |   
+ DIOR-/DIOW- ____________________/                 \_________________________
+                    |            |                 |                     |   
+                    |            |<------ tD ----->|                     |   
+ Read               |                      _________________             |   
+ DD0-15      -----------------------------<_________________>----------------
+                    |            |<- tE ->|<- tS ->|<- tF ->|            |   
+ Write              |                  __________________________        |   
+ DD0-15     --------------------------<__________________________>-----------
+                    |                 |            |             |       |  
+                    |                 |<--- tG --->|<--  tH   -->|       |   
+
+          +----------------------------------+-------+-------+-------+
+          | Single Word DMA                  | Mode 0| Mode 1| Mode 2|
+          | Timing Parameters                |  nsec |  nsec |  nsec |
+     +----+----------------------------------+-------+-------+-------+
+     | t0 | Cycle Time                 (Min) |  960  |  480  |  240  |
+     | tC | DMACK to DMREQ Delay       (Max) |  200  |  100  |   80  |
+     | tD | DIOR-/DIOW-      16-bit    (Min) |  480  |  240  |  120  |
+     | tE | DIOR- Data Access          (Max) |  250  |  150  |   60  |
+     | tF | DIOR- Data Hold            (Min) |    5  |    5  |    5  |
+     | tG | DIOW- Data Setup           (Min) |  250  |  100  |   35  |
+     | tH | DIOW- Data Hold            (Min) |   50  |   30  |   20  |
+     | tI | DMACK to DIOR-/DIOW- Setup (Min) |    0  |    0  |    0  |
+     | tJ | DIOR-/DIOW- to DMACK Hold  (Min) |    0  |    0  |    0  |
+     | tS | DIOR- Setup                (Min) | tD-tE | tD-tE | tD-tE |
+     +----+----------------------------------+-------+-------+-------+
+                 FIGURE 11-3:  SINGLE WORD DMA DATA TRANSFER 
+
+ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+                   |<-------------- t0 ---------------->|
+            __________________________________________________            __
+ DMARQ  ___/                                                  \__________/
+                   |                                    |<--->|
+                   |                                    |  tL
+               __________________________________________________ 
+ DMACK- ______/                                                  \_________/
+              |<-->|         |                          |
+                tI |<-- tD ->|<--------- tK ----------->|<- tJ ->|
+                   |         |                          | 
+ DIOR-             |_________|                          |_________
+ DIOW-  ___________/         \__________________________/         \_________
+ 
+                   |<--->|   |
+ READ                 tE  ________                             ________
+ DD0-15 -----------------<________>---------------------------<________>----
+ 
+                             |<-->|
+                             | tF
+ WRITE                 ____________                         ____________
+ DD0-15 --------------<____________>-----------------------<____________>---
+ 
+                      |<---->|<--->|
+                         tG    tH
+
+                     +----------------------------+-----------+
+                     | Multiword DMA              |   Mode 0  |
+                     | Timing Parameters          |    nsec   |
+                     |                            | Min | Max |
+               +-----+----------------------------+-----+-----+
+               | t0  | Cycle Time                 | 480 |     |
+               | tC  | DMACK to DMREQ Delay       |     | --- |
+               | tD  | DIOR-/DIOW-      16-bit    | 215 |     |
+               | tE  | DIOR- Data Access          |     | 150 |
+               | tF  | DIOR- Data Hold            |   5 |     |
+               | tF  | DIOR- Data Hold            |     |  20 |
+               | tG  | DIOW- Data Setup           | 100 |     |
+               | tH  | DIOW- Data Hold            |  20 |     |
+               | tI  | DMACK to DIOR-/DIOW- Setup |   0 |     |
+               | tJ  | DIOR-/DIOW- to DMACK Hold  |   0 |     |
+               | tKr | DIOR- Negated Pulse Width  |  50 |     |
+               | tKw | DIOW- Negated Pulse Width  | 215 |     |
+               | tLr | DIOR- to DMREQ Delay       |     | 120 |
+               | tLw | DIOW- to DMREQ Delay       |     |  40 |
+               +-----+----------------------------+-----+-----+
+                  FIGURE 11-4:  MULTIWORD DMA DATA TRANSFER 
+
+11.5 Power On and Hard Reset
+
+              ______ 
+ RESET- _____/      \_____________________________________________________
+             |<-tM->| 
+             |      |          Drive 0 
+          _ _ _ _ _ _ _ _______ _ _ _ _ _ _ _ _ _ _ _ _ _| 
+ BSY      _ _ _ _ _ _ _/       \_ _ _ _ _ *1  _ _ _ _ _ _\________________
+                  ->|tN|<-
+          _ _ _ _ _ _ _ _         _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+ DASP-    _ _ _ _ _ _ _ _\_______/_ _ _ _ *2 _ _ _ _ _ _ _ _ _ _\=== *3 ==
+                  ->| tP |<-     |                       |_ _ _ __________
+ Control Registers_______________________________________/_ _ _ / 
+                    |  | | 
+                    |  | |     Drive 1 
+        _ _ _ _ _ _ _ _ _________________________________| 
+ BSY    _ _ _ _ _ _ _ _/                                 \________________
+         _ _ _ _ _ _ _ _ _ _                              ______ _ _ _ _ _
+ PDIAG-  _ _ _ _ _ _ _ _ _ _\____________________________/      \_ _ _ _ _
+                    |  | |     |<----------- tQ -------->| 
+        _ _ _ _ _ _ _ _ _       _________________________ _ _ _ 
+ DASP-  _ _ _ _ _ _ _ _ _\_____/                         \ _ _ _\=== *3 ==
+                    |<-  tR  ->|<------------ tS -------------->| 
+                                                          _ _ _ __________
+ Control Registers_______________________________________/_ _ _ /
+
+     *1 Drive 0 can set BSY=0 if Drive 1 not present
+     *2 Drive 0 can use DASP- to indicate it is active if Drive 1 is not 
+        present
+     *3 DASP- can be asserted to indicate that the drive is active
+                      +-------------------+------------+
+                      | Label             |   Units    |
+                      +-------------------+------------+
+                      | tM         (Min)  |  25   usec |
+                      | tN         (Max)  | 400   nsec |
+                      | tP         (Max)  |   1   msec |
+                      | tQ         (Max)  |  30   secs |
+                      | tR Drive 0 (Max)  | 450   msec |
+                      | tR Drive 1 (Max)  | 400   msec |
+                      | tS         (Max)  |  30.5 secs |
+                      +-------------------+------------+
+
+                         FIGURE 11-5:  RESET SEQUENCE
+
+Annex A: Diagnostic and Reset Considerations 
+         (informative). 
+
+This annex describes the following timing relationships during:
+
+ a) Power On and Hardware Resets 
+    - One drive 
+    - Two drives 
+ b) Software Reset 
+    - One drive 
+    - Two drives 
+ c) Diagnostic Command Execution 
+    - One drive 
+    - Two drives 
+    - Two drives - Drive 1 failed 
+
+The timing assumes the following: 
+
+ o DASP- is asserted by Drive 1 and received by Drive 0 at power-on or 
+   hardware reset to indicate the presence of Drive 1. At all other times it 
+   is asserted by Drive 0 and Drive 1 to indicate when a drive is active. 
+ o PDIAG- is asserted by Drive 1 and detected by Drive 0. It is used by 
+   Drive 1 to indicate to Drive 0 that it has completed diagnostics and is 
+   ready to accept commands from the Host (BSY bit is cleared). This does not 
+   indicate that the drive is ready, only that it can accept commands. This 
+   line may remain asserted until the next reset occurs or an Execute 
+   Diagnostic command is received. 
+ o Unless indicated otherwise, all times are relative to the event that 
+   triggers the operation (RESET-, SRST=1, Execute Diagnostic Command). 
+
+A.1 Power On and Hardware Resets 
+
+A.1.1 Power On and Hardware Resets - One Drive 
+
+ - Host asserts RESET- for a minimum of 25 usec. 
+ - Drive 0 sets BSY within 400 nsecs after RESET- is negated. 
+ - Drive 0 negates DASP- within 1 msec after RESET- negated. 
+ - Drive 0 performs hardware initialization 
+ - Drive 0 may revert to its default condition 
+ - Drive 0 waits 1 msec then samples for at least 450 msec for DASP- to be 
+   asserted from Drive 1. 
+ - Drive 0 clears BSY when ready to accept commands (within 31 seconds). 
+
+A.1.2  Power On and Hardware Resets - Two Drives 
+
+ - Host asserts RESET- for a minimum of 25 usec. 
+ - Drive 0 and Drive 1 set BSY within 400 nsec after RESET- negated. 
+ - DASP- is negated within 1 msec after RESET- is negated. 
+
+A.1.2.1  Drive 1 
+
+ - Drive 1 negates PDIAG- before asserting DASP-.
+ - Drive 1 asserts DASP- within 400 msecs after RESET- (to show presence). 
+ - Drive 1 performs hardware initialization and executes its internal 
+   diagnostics. 
+ - Drive 1 may revert to its default condition 
+ - Drive 1 posts diagnostic results to the Error Register 
+ - Drive 1 clears BSY when ready to accept commands. 
+ - Drive 1 asserts PDIAG- to indicate that it is ready to accept commands 
+   (within 30 seconds from RESET-). 
+ - Drive 1 negates DASP- after the first command is received or negates DASP- 
+   if no command is received within 30 seconds after RESET-. 
+
+A.1.2.2  Drive 0 
+
+ - Drive 0 performs hardware initialization and executes its internal 
+   diagnostics. 
+ - Drive 0 may revert to its default condition 
+ - Drive 0 posts diagnostic results to the Error Register 
+ - After 1 msec, Drive 0 waits at least 450 msec for DASP- to be asserted 
+   (from Drive 1). If DASP- is not asserted, no Drive 1 is present (see POWER-
+   ON RESET - One Drive operation). 
+ - Drive 0 waits up to 31 seconds for Drive 1 to assert PDIAG-. If PDIAG- is 
+   not asserted, Drive 0 sets Bit 7=1 in the Error Register. 
+ - Drive 0 clears BSY when ready to accept commands (within 31 seconds). 
+
+A.2  Software Reset 
+
+A.2.1  Software Reset - One Drive 
+
+ - Host sets SRST=1 in the Device Control Register. 
+ - Drive 0 sets BSY within 400 nsec after detecting that SRST=1. 
+ - Drive 0 performs hardware initialization and executes its internal 
+   diagnostics. 
+ - Drive 0 may revert to its default condition. 
+ - Drive 0 posts diagnostic results to the Error Register. 
+ - Drive 0 clears BSY when ready to accept commands (within 31 seconds). 
+
+A.2.2  Software Reset - Two Drives 
+
+ - Host sets SRST=1 in the Device Control Register. 
+ - Drive 0 and Drive 1 set BSY within 400 nsec after detecting that SRST=1.
+ - Drive 0 and Drive 1 perform hardware initialization.
+ - Drive 0 and Drive 1 may revert to their default condition.
+
+A.2.2.1  Drive 1 
+
+ - Drive 1 negates PDIAG- within 1 msec. 
+ - Drive 1 clears BSY when ready to accept commands. 
+ - Drive 1 asserts PDIAG- to indicate that it is ready to accept commands 
+   (within 30 seconds). 
+
+A.2.2.2  Drive 0 
+
+ - Drive 0 waits up to 31 seconds for Drive 1 to assert PDIAG-. 
+ - Drive 0 clears BSY when ready to accept commands (within 31 seconds). 
+
+A.3  Diagnostic Command Execution 
+
+A.3.1  Diagnostic Command Execution - One Drive (Passed) 
+ 
+ - Drive 0 sets BSY within 400 nsec after the Execute Diagnostic command was 
+   received. 
+ - Drive 0 performs hardware initialization and internal diagnostics. 
+ - Drive 0 resets Command Block registers to default condition. 
+ - Drive 0 posts diagnostic results to the Error Register 
+ - Drive 0 clears BSY when ready to accept commands (within 6 seconds). 
+
+A.3.2  Diagnostic Command - Two Drives (Passed) 
+
+ - Drive 0 and Drive 1 set BSY within 400 nsec after the Execute Diagnostic 
+   command was received. 
+
+A.3.2.1  Drive 1 
+
+ - Drive 1 negates PDIAG- within 1 msec after command received. 
+ - Drive 1 performs hardware initialization and internal diagnostics. 
+ - Drive 1 resets the Command Block registers to their default condition. 
+ - Drive 1 posts diagnostic results to the Error Register 
+ - Drive 1 clears BSY when ready to accept commands. 
+ - Drive 1 asserts PDIAG- to indicate that it is ready to accept commands 
+   (within 5 seconds). 
+
+A.3.2.2  Drive 0 
+
+ - Drive 0 performs hardware initialization and internal diagnostics. 
+ - Drive 0 resets the Command Block registers to their default condition. 
+ - Drive 0 waits up to <5 seconds for Drive 1 to assert PDIAG-. 
+ - Drive 0 posts diagnostic results to the Error Register 
+ - Drive 0 clears BSY when ready to accept commands (within 6 seconds). 
+
+A.3.3  Diagnostic Command Execution - One Drive (Failed) 
+
+ - Drive 0 sets BSY within 400 nsec after Diagnostic command received. 
+ - Drive 0 performs hardware initialization and internal diagnostics. 
+ - Drive 0 resets Command Block registers to default condition. 
+ - Drive 0 posts a Diagnostic Code to the Error Register indicating a failure. 
+ - Drive 0 clears BSY when ready to accept commands (within 6 seconds) 
+
+A.3.4  Diagnostic Command Execution - Two Drives (Drive 1 Failed) 
+
+ - Drive 0 and Drive 1 set BSY within 400 nsec after Diagnostic command 
+   received. 
+
+A.3.4.1  Drive 1 
+
+ - Drive 1 negates PDIAG- within 1 msec after command received. 
+ - Drive 1 performs hardware initialization and internal diagnostics. 
+ - Drive 1 resets the Command Block registers to their default condition. 
+ - Drive 1 posts a Diagnostic Code to the Error Register indicating failure. 
+ - Drive 1 clears BSY. 
+ - Drive 1 does not assert PDIAG-, indicating that it failed diagnostics. 
+
+A.3.4.2  Drive 0 
+
+ - Drive 0 performs hardware initialization and internal diagnostics. 
+ - Drive 0 resets the Command Block registers to their default condition. 
+ - Drive 0 waits 6 seconds for Drive 1 to assert PDIAG- but PDIAG- is not 
+   asserted by Drive 1. 
+ - Drive 0 posts a Diagnostic Code to the Error Register setting Bit 7=1 to 
+   indicate that Drive 1 failed diagnostics.
+ - Drive 0 clears BSY when ready to accept commands (within 6 seconds). 
+
+  NOTE: The 6 seconds referenced above is a host-oriented value. 
+
+Annex B: Diagnostic and Reset Considerations  
+         (informative). 
+
+B.1  Power on and hardware reset (RESET-) 
+
+DASP- is read by Drive 0 to determine if Drive 1 is present. If Drive 1 is 
+present Drive 0 will read PDIAG- to determine when it is valid to clear BSY 
+and whether Drive 1 has powered on or reset without error, otherwise Drive 0 
+clears BSY whenever it is ready to accept commands. Drive 0 may assert DASP- 
+to indicate drive activity.
+
+B.2  Software reset 
+
+If Drive 1 is present Drive 0 will read PDIAG- to determine when it is valid 
+to clear BSY and whether Drive 1 has reset without any errors, otherwise 
+Drive  0 will simply reset and clear BSY.  DASP- is asserted by Drive 0 (and 
+Drive 1 if it is present) in order to indicate drive active. 
+
+B.3  Drive Diagnostic Command 
+
+If Drive 1 is present, Drive 0 will read PDIAG- to determine when it is valid 
+to clear BSY and if Drive 1 passed or failed the Execute Drive Diagnostic 
+command, otherwise Drive 0 will simply execute its diagnostics and then clear 
+BSY.  DASP- is asserted by Drive 0 (and Drive 1 if it is present) in order to 
+indicate the drive is active. 
+
+B.4  Truth Table 
+
+In all the above cases:  Power on, RESET-, software reset, and the Execute 
+Drive Diagnostics command the Drive 0 Error Register is calculated as follows: 
+
+        Drive 1           PDIAG-         Drive 0         Error 
+        Present?        Asserted?        Passed        Register 
+
+          Yes             Yes             Yes           01h 
+          Yes             Yes              No           0xh 
+          Yes              No             Yes           81h 
+          Yes              No              No           8xh 
+           No           (not read)        Yes           01h 
+           No           (not read)         No           0xh 
+
+Where x indicates the appropriate Diagnostic Code for the Power on, RESET-, 
+software reset, or drive diagnostics error. 
+
+B.5  Power On or Hardware Reset Algorithm  
+
+ 1) Power on or hardware reset 
+ 2) The hardware should automatically do the following: 
+         a) Set up the hardware to post both Drive 0 and Drive 1 status 
+         b) Set the Drive 0 Status Register to 80h (set BSY and clear 
+            all the other status bits) 
+         c) Set the Drive 1 Status Register to 80h (set BSY and clear all 
+            the other status bits) 
+ 3) Read the single Drive 0/Drive 1 jumper and note its state 
+ 4) Perform any remaining time critical hardware initialization including 
+    starting the spin up of the disk if needed 
+ 5) If Drive 1 
+         a) Negate the PDIAG- signal 
+         b) Set up PDIAG- as an output 
+         c) Assert the DASP- output 
+         d) Set up DASP- as an output if necessary 
+         e) Set up the hardware so it posts Drive 1 status only and 
+            continue to post 80h for Drive 1 status 
+         NOTE: all this must happen within 400 msec after power on or RESET- 
+    If Drive 0 
+         a) Set up PDIAG- as an input 
+         b) Release DASP- and set up DASP- as an input 
+         c) Test DASP- for 450 msec or until DASP- is asserted by Drive 1 
+         d) If DASP- is asserted within 450 msec 
+                 i)   Note that Drive 1 is present 
+                 ii)  Set up the hardware so it posts Drive 0 status only 
+                      and continue to post 80h for the Drive 0 status 
+            If DASP- is not asserted within 450 msec 
+                    i)   note that Drive 1 is not present
+         e) Assert DASP- to indicate drive activity 
+ 6) Complete all the hardware initialization needed to get the drive ready, 
+    including: 
+         a) Set the Sector Count Register to 01h 
+         b) Set the Sector Number Register to 01h 
+         c) Set the Cylinder Low Register to 00h 
+         d) Set the Cylinder High Register to 00h 
+         e) Set the Drive/Head Register to 00h 
+ 7) If Drive 1 and power on, or RESET- is valid 
+         a) Set the Error Register to Diagnostic Code 01h 
+         b) Set the Drive 1 Status Register to 00h 
+         c) Assert PDIAG- 
+         NOTE:  All this must happen within 5 seconds of power on or the 
+                negation of RESET- 
+    If Drive 1 and power on or RESET- bad 
+         a) Set the Error Register to the appropriate Diagnostic Code 
+         b) Set the Drive 1 Status Register to 00h 
+         NOTE:  All this must happen within 5 seconds of power on or the 
+                negation of RESET- 
+    If Drive 0, power on or RESET- valid, and a Drive 1 is present 
+         a) Test PDIAG- for 6 seconds or until PDIAG- is asserted by Drive 1 
+         b) If PDIAG- is asserted within 6 seconds 
+                 i)  Set the Error Register to Diagnostic Code 01h 
+         c) If PDIAG- is not asserted within 6 seconds 
+                 i)  Set the Error Register to 81h 
+         d) Set the Drive 0 Status Register to 00h 
+    If Drive 0, power on or RESET- bad, and a Drive 1 is present 
+         a) Test PDIAG- for 6 seconds or until PDIAG- is asserted by 
+            Drive 1 
+         b) If PDIAG- is asserted within 6 seconds 
+                 i)  Set the Error Register to the appropriate Diagnostic Code 
+         c) If PDIAG- is not asserted within 6 seconds 
+                 i)  Set the Error Register to 80h + the appropriate code 
+         d) Set the Drive 0 Status Register to 00h 
+    If Drive 0, power on or RESET- valid, and no Drive 1 is present 
+         a) Set the Error Register to Diagnostic Code 01h 
+         b) Set the Drive 1 Status Register to 00h 
+         c) Set the Drive 0 Status Register to 00h 
+    If Drive 0, power on or RESET- bad, and no Drive 1 is present 
+         a) Set the Error Register to the appropriate Diagnostic Code 
+         b) Set the Drive 1 Status Register to 00h 
+         c) Set the Drive 0 Status Register to 00h 
+ 8) Finish spin up if needed 
+ 9) If Drive 1 
+         a) Set the Drive 1 Status Register to 50h 
+         b) Negate DASP- if a command is not received within 30 seconds 
+    If Drive 0 and a Drive 1 is present 
+         a) Set the Drive 0 Status Register to 50h 
+         b) Negate DASP- 
+    If Drive 0 and no Drive 1 is present 
+         a) Leave the Drive 1 Status Register 00h 
+         b) Set the Drive 0 Status Register to 50h 
+         c) Negate DASP- 
+
+B.6  Software Reset Algorithm 
+
+ 1) The software reset bit is set 
+ 2) If Drive 1 
+         a) The hardware should set BUSY in the Drive 1 Status Register 
+         b) Negate the PDIAG- signal 
+         NOTE: this must happen within 1 msec of the software reset 
+    If Drive 0 and Drive 1 is present 
+            a) The hardware should set BUSY in the Drive 0 Status Register 
+    If Drive 0 and there is no Drive 1 the hardware should: 
+            a) Set BUSY in the Drive 0 Status Register 
+         b) Set the Drive 1 Status Register to 80h 
+ 3) Assert DASP- 
+ 4) Finish all the hardware initialization needed to place the drive in reset 
+ 5) Wait for the software reset bit to clear 
+ 6) Finish all hardware initialization needed to get the drive ready 
+    to receive any type of command from the host including: 
+         a) Set the Sector Count Register to 01h 
+         b) Set the Sector Number Register to 01h 
+         c) Set the Cylinder Low Register to 00h 
+         d) Set the Cylinder High Register to 00h 
+         e) Set the Drive/Head Register to 00h 
+ 7) If Drive 1 and reset valid 
+         a) Set the Error Register to Diagnostic Code 01h 
+         b) Set the Drive 1 Status Register to 50h 
+         c) Assert PDIAG- 
+         NOTE:  All this must happen within 5 seconds of the clearing of 
+                the software reset bit 
+    If Drive 1 and reset bad 
+         a) Set the Error Register to the appropriate Diagnostic Code 
+         b) Set the Drive 1 Status Register to 50h 
+         NOTE:  All this must happen within 5 seconds of the clearing of 
+                the software reset bit 
+    If Drive 0, reset valid, and a Drive 1 is present 
+            a) Test PDIAG- for 6 seconds or until PDIAG- is asserted by 
+            Drive 1 
+            b) If PDIAG- is asserted within 6 seconds 
+                 i)  Set the Error Register to Diagnostic Code 01h 
+         c) If PDIAG- is not asserted within 6 seconds 
+                 i)  Set the Error Register to 81h 
+         d) Set the Drive 0 Status Register to 50h 
+    If Drive 0, reset bad, and a Drive 1 is present 
+            a) Test PDIAG- for 31 seconds or until PDIAG- is asserted by
+            Drive 1 
+            b) If PDIAG- is asserted within 31 seconds 
+                 i)  Set the Error Register to the appropriate Diagnostic Code 
+         c) If PDIAG- is not asserted within 31 seconds 
+                 i)  Set the Error Register to 80h + the appropriate code 
+         d) Set the Drive 0 Status Register to 50h 
+    If Drive 0, reset valid, and no Drive 1 is present 
+            a) Set the Error Register to Diagnostic Code 01h 
+         b) Set the Drive 1 Status Register to 00h 
+            c) Set the Drive 0 Status Register to 50h 
+    If Drive 0, reset bad, and no Drive 1 is present 
+            a) Set the Error Register to the appropriate Diagnostic Code 
+         b) Set the Drive 1 Status Register to 00h 
+            c) Set the Drive 0 Status Register to 50h 
+
+B.7  Diagnostic Command Algorithm 
+
+ 1) The diagnostics command is received 
+ 2) If Drive 1 
+         a) The hardware should set BUSY in the Drive 1 Status Register 
+         b) Negate the PDIAG- signal 
+         NOTE: this must happen within 1 msec after command acceptance 
+    If Drive 0 and Drive 1 is present 
+            a) The hardware should set BUSY in the Drive 0 Status Register 
+    If Drive 0 and there is no Drive 1 the hardware should 
+            a) Set BUSY in the Drive 0 Status Register 
+         b) Set BUSY in the Drive 1 Status Register 
+ 3) Assert DASP- 
+ 4) Perform all the drive diagnostics and note their results 
+ 5) Finish all the hardware initialization needed to get the drive ready 
+    to receive any type of command from the host including: 
+         a) Set the Sector Count Register to 01h 
+         b) Set the Sector Number Register to 01h 
+         c) Set the Cylinder Low Register to 00h 
+         d) Set the Cylinder High Register to 00h 
+         e) Set the Drive/Head Register to 00h 
+ 6) If Drive 1 and passed 
+         a) Set the Error Register to Diagnostic Code 01h 
+         b) Set the Drive 1 status to 50h 
+         c) Assert PDIAG- 
+         NOTE:  All this must happen within 5 seconds of the acceptance 
+                of the diagnostic command 
+    If Drive 1 and did not pass 
+            a) Set the Error Register to the appropriate Diagnostic Code 
+         b) Set the Drive 1 status to 50h 
+         NOTE:  All this must happen within 5 seconds of the acceptance 
+                of the diagnostic command 
+    If Drive 0, passed, and a Drive 1 is present 
+            a) Test PDIAG- for 6 seconds or until PDIAG- is asserted by 
+            Drive 1 
+            b) If PDIAG- is asserted within 6 seconds 
+                 i)  Set the Error Register to Diagnostic Code 01h 
+         c) If PDIAG- is not asserted within 6 seconds 
+                 i)  Set the Error Register to 81h 
+         d) Set the Drive 0 status to 50h 
+         e) Issue interrupt to the host 
+    If Drive 0, did not pass, and a Drive 1 is present 
+         a) Test PDIAG- for 6 seconds or until PDIAG- is asserted by Drive 1 
+         b) If PDIAG- is asserted within 6 seconds 
+                 i)  Set the Error Register to the appropriate Diagnostic Code 
+         c) If PDIAG- is not asserted within  seconds 
+                 i)  Set the Error Register to 80h + the appropriate code 
+         d) Set the Drive 0 Status Register to 50h 
+         e) Issue interrupt to the host 
+    If Drive 0, passed, and no Drive 1 is present 
+         a) Set the Error Register to Diagnostic Code 01h 
+         b) Set the Drive 1 Status Register to 00h 
+         c) Set the Drive 0 Status Register to 50h 
+         d) Issue interrupt to the host 
+    If Drive 0, did not pass, and no Drive 1 is present 
+         a) Set the Error Register to the appropriate Diagnostic Code 
+         b) Set the Drive 1 Status Register to 00h 
+         c) Set the Drive 0 Status Register to 50h 
+         d) Issue interrupt to the host 
+
+Annex C: Small Form Factor Connectors
+         (informative). 
+
+This annex describes the connector-connector mating alternatives for 2 1/2" 
+disk drives or smaller which were developed by the Small Form Factor (SFF) 
+Committee, an industry ad hoc group. 
+
+In an effort to broaden the applications for small form factor disk drives, a 
+group of companies representing system integrators, peripheral suppliers, and 
+component suppliers decided to address the issues involved. 
+
+A primary purpose of the SFF Committee was to define the external dimensions 
+of small form factor disk drives so that products from different vendors could 
+be used in the same mounting configurations. 
+
+The restricted area, and the mating of drives directly to a motherboard 
+required that the number of connectors be reduced, which caused the assignment 
+of additional pins for power. Power is provided to the drives on the same 
+connector as used for the signals, and addresses are set by the receptacle 
+into which the drives are plugged. 
+
+The 50-pin connector that has been widely adopted across industry for SFF 
+drives is a low density 2mm connector which has no shroud on the plug which is 
+mounted on the drive. A number of suppliers provide intermatable components. 
+The following information has been provided to assist users in specifying 
+components used in an implementation. 
+
+      Signals Connector Plug               DuPont 86451 or equivalent
+      Signals Connector Receptacle         DuPont 86455 or equivalent
+
+C.1  44-pin Signal Assignments 
+
+The signals assigned for 44-pin applications are described in Table C-1. 
+Although there are 50 pins in the plug, the mating receptacle need contain 
+only 44 pins (the removal of pins E and F provides room for the wall of the 
+receptacle).
+
+44-pin Signal Assignments for ATA 
+
+The first four pins of the connector plug located on the drive are not to be 
+connected to the host, as they are reserved for manufacturer's use. Pins E, 
+F and K are keys, and are removed. 
+
+            +-------------------------------------------1-E-----+ 
+            | o o o o o o o o o o o o o o o o o o o o o o K C A | 
+            | o o o o o o o o o o o o K o o o o o o o o o K D B | 
+            +44----------------------20-----------------2-F-----+ 
+ 
+                    TABLE C-1  SIGNAL ASSIGNMENTS FOR ATA 
+ ====================================================================== 
+      Signal        Connector              Connector      Signal 
+       Name          Contact   Conductor    Contact        Name 
+ ====================================================================== 
+     Vendor Unique      A                      B         Vendor Unique 
+     Vendor Unique      C                      D         Vendor Unique 
+     (keypin)           E                      F         (keypin) 
+     RESET-             1        1 |  2        2         Ground 
+     DD7                3        3 |  4        4         DD8 
+     DD6                5        5 |  6        6         DD9 
+     DD5                7        7 |  8        8         DD10 
+     DD4                9        9 | 10       10         DD11 
+     DD3               11       11 | 12       12         DD12 
+     DD2               13       13 | 14       14         DD13 
+     DD1               15       15 | 16       16         DD14 
+     DD0               17       17 | 18       18         DD15 
+     Ground            19       19 | 20       20         (keypin) 
+     DMARQ             21       21 | 22       22         Ground 
+     DIOW-             23       23 | 24       24         Ground 
+     DIOR-             25       25 | 26       26         Ground 
+     IORDY             27       27 | 28       28         PSYNC:CSEL 
+     DMACK-            29       29 | 30       30         Ground 
+     INTRQ             31       31 | 32       32         IOCS16-
+     DA1               33       33 | 34       34         PDIAG-
+     DAO               35       35 | 36       36         DA2 
+     CS1FX-            37       37 | 38       38         CS3FX-
+     DASP-             39       39 | 40       40         Ground 
+  *  +5V (Logic)       41       41 | 42       42         +5V (Motor)     *
+  *  Ground (Return)   43       43 | 44       44         TYPE- (0=ATA)   *
+         * Pins which are additional to those of the 40-pin cable.
+ ====================================================================== 
+
